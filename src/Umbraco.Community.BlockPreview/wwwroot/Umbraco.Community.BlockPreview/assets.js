@@ -3,7 +3,7 @@ const e = [
     type: "globalContext",
     alias: "blockpreview.context",
     name: "BlockPreview context",
-    js: () => import("./blockpreview.context-OrqoSQJ2.js")
+    js: () => import("./blockpreview.context-BbabkTY4.js")
   }
 ], o = [...e], s = (n, t) => {
   t.registerMany([
