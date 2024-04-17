@@ -4,8 +4,8 @@ import { UmbControllerHost } from "@umbraco-cms/backoffice/controller-api";
 
 import { BlockPreviewManagementRepository } from "../repository/blockpreview.repository";
 
+import { type BlockValueBlockGridLayoutItemModel, type BlockValueBlockListLayoutItemModel, OpenAPI } from "@api";
 import { UMB_AUTH_CONTEXT } from '@umbraco-cms/backoffice/auth'
-import { BlockGridValueModel, BlockListValueModel, OpenAPI } from "../api";
 import { UmbStringState } from "@umbraco-cms/backoffice/observable-api";
 
 export class BlockPreviewManagementContext extends UmbControllerBase {
@@ -28,14 +28,14 @@ export class BlockPreviewManagementContext extends UmbControllerBase {
 
   }
 
-  async previewGridMarkup(pageId?: number, blockEditorAlias?: string, culture?: string, requestBody?: BlockGridValueModel) {
+  async previewGridMarkup(pageId?: number, blockEditorAlias?: string, culture?: string, requestBody?: BlockValueBlockGridLayoutItemModel) {
     const { data } = await this.#repository.previewGridMarkup(pageId, blockEditorAlias, culture, requestBody);
     if (data) {
       this.#markup.setValue(data);
     }
   }
 
-  async previewListMarkup(pageId?: number, blockEditorAlias?: string, culture?: string, requestBody?: BlockListValueModel) {
+  async previewListMarkup(pageId?: number, blockEditorAlias?: string, culture?: string, requestBody?: BlockValueBlockListLayoutItemModel) {
     const { data } = await this.#repository.previewListMarkup(pageId, blockEditorAlias, culture, requestBody);
     if (data) {
       this.#markup.setValue(data);
