@@ -128,7 +128,7 @@ namespace Umbraco.Community.BlockPreview.Services
 
             return viewComponent != null
                 ? await GetMarkupFromViewComponent(controllerContext, viewData, viewComponent)
-                : await GetMarkupFromPartial(controllerContext, viewData, contentAlias, true);
+                : await GetMarkupFromPartial(controllerContext, viewData, contentAlias, isGrid);
         }
 
         public virtual async Task<string> GetMarkupFromPartial(
