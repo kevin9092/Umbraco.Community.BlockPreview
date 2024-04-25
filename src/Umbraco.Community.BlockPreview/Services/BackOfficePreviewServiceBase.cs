@@ -61,7 +61,7 @@ namespace Umbraco.Community.BlockPreview.Services
             foreach (var rawPropValue in blockData.RawPropertyValues.Where(x => x.Value != null))
             {
                 var originalValue = rawPropValue.Value;
-                if (originalValue.TryConvertToGridItem(out BlockValue? blockValue))
+                if (originalValue.TryConvertToGridItem(out BlockValue<BlockGridLayoutItem>? blockValue))
                 {
                     blockValue?.ContentData.ForEach(ConvertNestedValuesToString);
                     blockValue?.SettingsData.ForEach(ConvertNestedValuesToString);

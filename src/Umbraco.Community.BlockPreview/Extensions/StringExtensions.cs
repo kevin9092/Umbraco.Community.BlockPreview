@@ -18,7 +18,7 @@ public static class StringExtensions
         return $"{char.ToUpper(value[0], CultureInfo.CurrentCulture)}{value[1..]}";
     }
 
-    public static bool TryConvertToGridItem(this object? rawPropValue, out BlockValue? value)
+    public static bool TryConvertToGridItem(this object? rawPropValue, out BlockValue<BlockGridLayoutItem>? value)
     {
         if (!rawPropValue?.ToString()?.DetectIsJson() == true || rawPropValue is not JObject jObject)
         {
@@ -28,11 +28,11 @@ public static class StringExtensions
 
         var keys = jObject.Properties().Select(x => x.Name);
 
-        if (keys.Contains(nameof(BlockValue.Layout), StringComparer.InvariantCultureIgnoreCase) ||
-            keys.Contains(nameof(BlockValue.ContentData), StringComparer.InvariantCultureIgnoreCase) ||
-            keys.Contains(nameof(BlockValue.SettingsData), StringComparer.InvariantCultureIgnoreCase))
+        if (keys.Contains("Layout", StringComparer.InvariantCultureIgnoreCase) ||
+            keys.Contains("ContentData", StringComparer.InvariantCultureIgnoreCase) ||
+            keys.Contains("SettingsData", StringComparer.InvariantCultureIgnoreCase))
         {
-            value = JsonConvert.DeserializeObject<BlockValue>(rawPropValue?.ToString());
+            value = JsonConvert.DeserializeObject<BlockValue<BlockGridLayoutItem>>(rawPropValue?.ToString());
             return true;
         }
 
