@@ -1,6 +1,6 @@
 {
 	"$schema": "https://marketplace.umbraco.com/umbraco-marketplace-schema.json",
-	"AlternatePackageNames": ["Our.Umbraco.BlockPreview"],
+	"AlternatePackageNames": ["Umbraco.Community.BlockPreview", "Our.Umbraco.BlockPreview"],
 	"AuthorDetails": {
 		"Name": "Rick Butterfield",
 		"Description": "Umbraco MVP & full stack lead software engineer from the UK.",
@@ -28,5 +28,5 @@
 			"Caption": "The Umbraco backoffice showing a panel titled 'Select view', with two HTML files in a list available for selection"
 		}
 	],
-  "Title": "Umbraco.Community.BlockPreview"
+  "Title": "BlockPreview"
 }

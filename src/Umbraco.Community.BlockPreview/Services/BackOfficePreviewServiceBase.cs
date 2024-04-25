@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc.ViewEngines;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
 using System.Text.Encodings.Web;
 using Umbraco.Cms.Core;
 using Umbraco.Cms.Core.Composing;
@@ -52,14 +53,22 @@ namespace Umbraco.Community.BlockPreview.Services
             _options = options.Value;
         }
 
-        public virtual void ConvertNestedValuesToString(BlockItemData? contentData)
+        public virtual void ConvertNestedValuesToString(BlockItemData? blockData)
         {
-            if (contentData == null)
+            if (blockData == null)
                 return;
 
-            foreach (var rawPropValue in contentData.RawPropertyValues.Where(x => x.Value != null))
+            foreach (var rawPropValue in blockData.RawPropertyValues.Where(x => x.Value != null))
             {
-                contentData.RawPropertyValues[rawPropValue.Key] = rawPropValue.Value?.ToString();
+                var originalValue = rawPropValue.Value;
+                if (originalValue.TryConvertToGridItem(out BlockValue? blockValue))
+                {
+                    blockValue?.ContentData.ForEach(ConvertNestedValuesToString);
+                    blockValue?.SettingsData.ForEach(ConvertNestedValuesToString);
+                    blockData.RawPropertyValues[rawPropValue.Key] = JsonConvert.SerializeObject(blockValue);
+                    continue;
+                }
+                blockData.RawPropertyValues[rawPropValue.Key] = originalValue?.ToString();
             }
         }
         public virtual IPublishedElement? ConvertToElement(BlockItemData data, bool throwOnError)
@@ -119,7 +128,7 @@ namespace Umbraco.Community.BlockPreview.Services
 
             return viewComponent != null
                 ? await GetMarkupFromViewComponent(controllerContext, viewData, viewComponent)
-                : await GetMarkupFromPartial(controllerContext, viewData, contentAlias, true);
+                : await GetMarkupFromPartial(controllerContext, viewData, contentAlias, isGrid);
         }
 
         public virtual async Task<string> GetMarkupFromPartial(

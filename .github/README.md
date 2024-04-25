@@ -1,9 +1,9 @@
-# Umbraco.Community.BlockPreview
+# BlockPreview
 [![Platform](https://img.shields.io/badge/Umbraco-10.4+-%233544B1?style=flat&logo=umbraco)](https://umbraco.com/products/umbraco-cms/)
 [![NuGet](https://img.shields.io/nuget/v/Umbraco.Community.BlockPreview.svg)](https://www.nuget.org/packages/Umbraco.Community.BlockPreview/)
 [![GitHub](https://img.shields.io/github/license/rickbutterfield/Umbraco.Community.BlockPreview)](https://github.com/rickbutterfield/Umbraco.Community.BlockPreview/blob/develop/LICENSE)
 
-**Umbraco.Community.BlockPreview** enables easy to use rich HTML backoffice previews for the Umbraco Block List and Block Grid editors.
+**BlockPreview** enables easy to use rich HTML backoffice previews for the Umbraco Block List and Block Grid editors.
 
 <img src="https://raw.githubusercontent.com/rickbutterfield/Umbraco.Community.BlockPreview/develop/.github/assets/icon.png" alt="Umbraco.Community.BlockPreview icon" height="150" align="right">
 
@@ -14,13 +14,13 @@ The Umbraco 10.4+ version of this package is [available via NuGet](https://www.n
 To install the package, you can use either .NET CLI:
 
 ```
-dotnet add package Umbraco.Community.BlockPreview --version 1.8.2
+dotnet add package Umbraco.Community.BlockPreview --version 1.8.4
 ```
 
 or the older NuGet Package Manager:
 
 ```
-Install-Package Umbraco.Community.BlockPreview -Version 1.8.2
+Install-Package Umbraco.Community.BlockPreview -Version 1.8.4
 ```
 
 ### Setup
@@ -153,6 +153,6 @@ This package is entirely based on the amazing work done by [Dave Woestenborghs](
 [Matthew Wise](https://github.com/Matthew-Wise) also wrote a great article for [24days in Umbraco 2022](https://24days.in/umbraco-cms/2022/more-blocklist-editor/) which added the ability to surface `ViewComponents` and has allowed his code to be contributed.
 
 ## License
-Copyright &copy; 2022-2023 [Rick Butterfield](https://rickbutterfield.dev), and other contributors.
+Copyright &copy; 2022-2024 [Rick Butterfield](https://rickbutterfield.dev), and other contributors.
 
 Licensed under the [MIT License](https://github.com/rickbutterfield/Umbraco.Community.BlockPreview/blob/develop/LICENSE.md).
