@@ -11,6 +11,7 @@ using Umbraco.Community.BlockPreview.Services;
 using Asp.Versioning;
 using Umbraco.Cms.Core.Services;
 using Umbraco.Cms.Core.Models.Blocks;
+using System.Text.Json;
 
 namespace Umbraco.Community.BlockPreview.Controllers
 {
@@ -64,8 +65,8 @@ namespace Umbraco.Community.BlockPreview.Controllers
         [HttpPost("previewGridMarkup")]
         [ProducesResponseType(typeof(string), 200)]
         public async Task<IActionResult> PreviewGridMarkup(
-            [FromBody] BlockValue<BlockGridLayoutItem> data,
-            [FromQuery] int pageId = 0,
+            [FromBody] string blockData,
+            [FromQuery] Guid pageKey,
             [FromQuery] string blockEditorAlias = "",
             [FromQuery] string culture = "")
         {
@@ -76,9 +77,9 @@ namespace Umbraco.Community.BlockPreview.Controllers
                 IPublishedContent? page = null;
 
                 // If the page is new, then the ID will be zero
-                if (pageId > 0)
+                if (pageKey != Guid.Empty)
                 {
-                    page = GetPublishedContentForPage(pageId);
+                    page = GetPublishedContentForPage(pageKey);
                 }
 
                 if (page == null)
@@ -90,12 +91,12 @@ namespace Umbraco.Community.BlockPreview.Controllers
 
                 await SetupPublishedRequest(page, currentCulture);
 
-                markup = await _backOfficeGridPreviewService.GetMarkupForBlock(page, data, blockEditorAlias, ControllerContext, currentCulture);
+                markup = await _backOfficeGridPreviewService.GetMarkupForBlock(page, blockData, blockEditorAlias, ControllerContext, currentCulture);
             }
             catch (Exception ex)
             {
                 markup = $"<div class=\"alert alert-error\"><strong>Something went wrong rendering a preview.</strong><br/><pre>{ex.Message}</pre></div>";
-                _logger.LogError(ex, "Error rendering preview for block {ContentTypeAlias}", data.ContentData.FirstOrDefault()?.ContentTypeAlias);
+                _logger.LogError(ex, "Error rendering preview for block");
             }
 
             string? cleanMarkup = CleanUpMarkup(markup);
@@ -113,8 +114,8 @@ namespace Umbraco.Community.BlockPreview.Controllers
         [HttpPost("previewListMarkup")]
         [ProducesResponseType(typeof(string), 200)]
         public async Task<IActionResult> PreviewListMarkup(
-            [FromBody] BlockValue<BlockListLayoutItem> data,
-            [FromQuery] int pageId = 0,
+            [FromBody] string blockData,
+            [FromQuery] Guid pageKey,
             [FromQuery] string blockEditorAlias = "",
             [FromQuery] string culture = "")
         {
@@ -125,9 +126,9 @@ namespace Umbraco.Community.BlockPreview.Controllers
                 IPublishedContent? page = null;
 
                 // If the page is new, then the ID will be zero
-                if (pageId > 0)
+                if (pageKey != Guid.Empty)
                 {
-                    page = GetPublishedContentForPage(pageId);
+                    page = GetPublishedContentForPage(pageKey);
                 }
 
                 if (page == null)
@@ -139,12 +140,12 @@ namespace Umbraco.Community.BlockPreview.Controllers
 
                 await SetupPublishedRequest(page, currentCulture);
 
-                markup = await _backOfficeListPreviewService.GetMarkupForBlock(page, data, blockEditorAlias, ControllerContext, currentCulture);
+                markup = await _backOfficeListPreviewService.GetMarkupForBlock(page, blockData, blockEditorAlias, ControllerContext, currentCulture);
             }
             catch (Exception ex)
             {
                 markup = $"<div class=\"alert alert-error\"><strong>Something went wrong rendering a preview.</strong><br/><pre>{ex.Message}</pre></div>";
-                _logger.LogError(ex, "Error rendering preview for block {ContentTypeAlias}", data.ContentData.FirstOrDefault()?.ContentTypeAlias);
+                _logger.LogError(ex, "Error rendering preview for block {ContentTypeAlias}");
             }
 
             string? cleanMarkup = CleanUpMarkup(markup);
@@ -182,14 +183,14 @@ namespace Umbraco.Community.BlockPreview.Controllers
             _contextCultureService.SetCulture(culture);
         }
 
-        private IPublishedContent? GetPublishedContentForPage(int pageId)
+        private IPublishedContent? GetPublishedContentForPage(Guid pageKey)
         {
             if (!_umbracoContextAccessor.TryGetUmbracoContext(out IUmbracoContext? context))
                 return null;
 
             // Get page from published cache.
             // If unpublished, then get it from preview
-            return context.Content?.GetById(pageId) ?? context.Content?.GetById(true, pageId);
+            return context.Content?.GetById(pageKey) ?? context.Content?.GetById(true, pageKey);
         }
 
         private static string CleanUpMarkup(string markup)

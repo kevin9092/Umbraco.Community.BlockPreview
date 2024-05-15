@@ -194,12 +194,12 @@ namespace Umbraco.Community.BlockPreview.Services
             return sw.ToString();
         }
 
-        public virtual async Task<string> GetMarkupForBlock<T>(
+        public virtual async Task<string> GetMarkupForBlock(
             IPublishedContent page,
-            BlockValue<T> blockValue,
+            string blockData,
             string blockEditorAlias,
             ControllerContext controllerContext,
-            string? culture) where T : IBlockLayoutItem
+            string? culture)
         {
             return await Task.FromResult<string>(string.Empty);
         }

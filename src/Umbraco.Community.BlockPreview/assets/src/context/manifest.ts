@@ -3,7 +3,7 @@ import { ManifestGlobalContext } from '@umbraco-cms/backoffice/extension-registr
 const contexts: Array<ManifestGlobalContext> = [
   {
     type: 'globalContext',
-    alias: 'blockpreview.context',
+    alias: 'BlockPreview.Context',
     name: 'BlockPreview context',
     js: () => import('./blockpreview.context.ts')
   }

@@ -12,12 +12,12 @@ export class BlockPreviewService {
  * @throws ApiError
  */
     public static postUmbracoBlockpreviewApiV1PreviewGridMarkup(data: $OpenApiTs['/umbraco/blockpreview/api/v1/previewGridMarkup']['post']['req'] = {}): CancelablePromise<$OpenApiTs['/umbraco/blockpreview/api/v1/previewGridMarkup']['post']['res'][200]> {
-        const { pageId, blockEditorAlias, culture, requestBody } = data;
+        const { pageKey, blockEditorAlias, culture, requestBody } = data;
         return __request(OpenAPI, {
     method: 'POST',
     url: '/umbraco/blockpreview/api/v1/previewGridMarkup',
     query: {
-        pageId,
+        pageKey,
         blockEditorAlias,
         culture
     },
@@ -31,12 +31,12 @@ export class BlockPreviewService {
  * @throws ApiError
  */
     public static postUmbracoBlockpreviewApiV1PreviewListMarkup(data: $OpenApiTs['/umbraco/blockpreview/api/v1/previewListMarkup']['post']['req'] = {}): CancelablePromise<$OpenApiTs['/umbraco/blockpreview/api/v1/previewListMarkup']['post']['res'][200]> {
-        const { pageId, blockEditorAlias, culture, requestBody } = data;
+        const { pageKey, blockEditorAlias, culture, requestBody } = data;
         return __request(OpenAPI, {
     method: 'POST',
     url: '/umbraco/blockpreview/api/v1/previewListMarkup',
     query: {
-        pageId,
+        pageKey,
         blockEditorAlias,
         culture
     },

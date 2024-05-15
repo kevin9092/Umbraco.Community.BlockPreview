@@ -12,7 +12,7 @@ namespace Umbraco.Community.BlockPreview.Interfaces
         Type? FindBlockType(string? contentTypeAlias);
         ViewDataDictionary CreateViewData(object? typedBlockInstance);
         Task<string> GetMarkup(ControllerContext controllerContext, string contentAlias, ViewDataDictionary viewData, bool isGrid = false);
-        Task<string> GetMarkupForBlock<T>(IPublishedContent page, BlockValue<T> blockValue, string blockEditorAlias, ControllerContext controllerContext, string? culture) where T : IBlockLayoutItem;
+        Task<string> GetMarkupForBlock(IPublishedContent page, string blockData, string blockEditorAlias, ControllerContext controllerContext, string? culture);
         Task<string> GetMarkupFromViewComponent(ControllerContext controllerContext, ViewDataDictionary viewData, ViewComponentDescriptor viewComponent);
     }
 }

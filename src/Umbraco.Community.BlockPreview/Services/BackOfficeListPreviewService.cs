@@ -7,6 +7,7 @@ using Umbraco.Cms.Core.Composing;
 using Umbraco.Cms.Core.Models.Blocks;
 using Umbraco.Cms.Core.Models.PublishedContent;
 using Umbraco.Cms.Core.PropertyEditors.ValueConverters;
+using Umbraco.Cms.Core.Serialization;
 using Umbraco.Community.BlockPreview.Interfaces;
 
 namespace Umbraco.Community.BlockPreview.Services
@@ -14,6 +15,7 @@ namespace Umbraco.Community.BlockPreview.Services
     public sealed class BackOfficeListPreviewService : BackOfficePreviewServiceBase, IBackOfficeListPreviewService
     {
         private readonly ContextCultureService _contextCultureService;
+        private readonly IJsonSerializer _jsonSerializer;
 
         public BackOfficeListPreviewService(
             BlockEditorConverter blockEditorConverter,
@@ -24,14 +26,17 @@ namespace Umbraco.Community.BlockPreview.Services
             IViewComponentHelperWrapper viewComponentHelperWrapper,
             IViewComponentSelector viewComponentSelector,
             IOptions<BlockPreviewOptions> options,
-            IRazorViewEngine razorViewEngine) : base(tempDataProvider, viewComponentHelperWrapper, razorViewEngine, typeFinder, blockEditorConverter, viewComponentSelector, publishedValueFallback, options)
+            IRazorViewEngine razorViewEngine,
+            IJsonSerializer jsonSerializer)
+            : base(tempDataProvider, viewComponentHelperWrapper, razorViewEngine, typeFinder, blockEditorConverter, viewComponentSelector, publishedValueFallback, options)
         {
             _contextCultureService = contextCultureService;
+            _jsonSerializer = jsonSerializer;
         }
 
-        public override async Task<string> GetMarkupForBlock<BlockListLayoutItem>(
+        public override async Task<string> GetMarkupForBlock(
             IPublishedContent page,
-            BlockValue<BlockListLayoutItem> blockValue,
+            string blockData,
             string blockEditorAlias,
             ControllerContext controllerContext,
             string? culture)
@@ -41,8 +46,11 @@ namespace Umbraco.Community.BlockPreview.Services
                 _contextCultureService.SetCulture(culture);
             }
 
-            BlockItemData? contentData = blockValue.ContentData.FirstOrDefault();
-            BlockItemData? settingsData = blockValue.SettingsData.FirstOrDefault();
+            var converter = new BlockListEditorDataConverter(_jsonSerializer);
+            converter.TryDeserialize(blockData, out BlockEditorData<BlockListValue, BlockListLayoutItem>? blockValue);
+
+            BlockItemData? contentData = blockValue?.BlockValue.ContentData.FirstOrDefault();
+            BlockItemData? settingsData = blockValue?.BlockValue.SettingsData.FirstOrDefault();
 
             if (contentData != null)
             {

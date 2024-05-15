@@ -5,9 +5,12 @@ using Microsoft.AspNetCore.Mvc.ViewComponents;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.Extensions.Options;
 using Umbraco.Cms.Core.Composing;
+using Umbraco.Cms.Core.DeliveryApi;
+using Umbraco.Cms.Core.Logging;
 using Umbraco.Cms.Core.Models.Blocks;
 using Umbraco.Cms.Core.Models.PublishedContent;
 using Umbraco.Cms.Core.PropertyEditors.ValueConverters;
+using Umbraco.Cms.Core.Serialization;
 using Umbraco.Community.BlockPreview.Interfaces;
 
 namespace Umbraco.Community.BlockPreview.Services
@@ -15,6 +18,11 @@ namespace Umbraco.Community.BlockPreview.Services
     public sealed class BackOfficeGridPreviewService : BackOfficePreviewServiceBase, IBackOfficeGridPreviewService
     {
         private readonly ContextCultureService _contextCultureService;
+        private readonly IJsonSerializer _jsonSerializer;
+        private readonly IProfilingLogger _proflog;
+        private readonly BlockEditorConverter _blockEditorConverter;
+        private readonly IApiElementBuilder _apiElementBuilder;
+        private readonly BlockGridPropertyValueConstructorCache _constructorCache;
 
         public BackOfficeGridPreviewService(
             BlockEditorConverter blockEditorConverter,
@@ -25,14 +33,24 @@ namespace Umbraco.Community.BlockPreview.Services
             IViewComponentHelperWrapper viewComponentHelperWrapper,
             IViewComponentSelector viewComponentSelector,
             IOptions<BlockPreviewOptions> options,
-            IRazorViewEngine razorViewEngine) : base(tempDataProvider, viewComponentHelperWrapper, razorViewEngine, typeFinder, blockEditorConverter, viewComponentSelector, publishedValueFallback, options)
+            IRazorViewEngine razorViewEngine,
+            IJsonSerializer jsonSerializer,
+            IProfilingLogger proflog,
+            IApiElementBuilder apiElementBuilder,
+            BlockGridPropertyValueConstructorCache constructorCache)
+            : base(tempDataProvider, viewComponentHelperWrapper, razorViewEngine, typeFinder, blockEditorConverter, viewComponentSelector, publishedValueFallback, options)
         {
             _contextCultureService = contextCultureService;
+            _jsonSerializer = jsonSerializer;
+            _proflog = proflog;
+            _apiElementBuilder = apiElementBuilder;
+            _blockEditorConverter = blockEditorConverter;
+            _constructorCache = constructorCache;
         }
 
-        public override async Task<string> GetMarkupForBlock<BlockGridLayoutItem>(
+        public override async Task<string> GetMarkupForBlock(
             IPublishedContent page,
-            BlockValue<BlockGridLayoutItem> blockValue,
+            string blockData,
             string blockEditorAlias,
             ControllerContext controllerContext,
             string? culture)
@@ -42,8 +60,11 @@ namespace Umbraco.Community.BlockPreview.Services
                 _contextCultureService.SetCulture(culture);
             }
 
-            BlockItemData? contentData = blockValue.ContentData.FirstOrDefault();
-            BlockItemData? settingsData = blockValue.SettingsData.FirstOrDefault();
+            var converter = new BlockGridEditorDataConverter(_jsonSerializer);
+            converter.TryDeserialize(blockData, out BlockEditorData<BlockGridValue, BlockGridLayoutItem>? blockValue);
+
+            BlockItemData? contentData = blockValue?.BlockValue.ContentData.FirstOrDefault();
+            BlockItemData? settingsData = blockValue?.BlockValue.SettingsData.FirstOrDefault();
 
             if (contentData != null)
             {
@@ -62,11 +83,18 @@ namespace Umbraco.Community.BlockPreview.Services
 
                 BlockGridItem? typedBlockInstance = blockInstance as BlockGridItem;
 
-                var contentProperty = page.Properties.FirstOrDefault(x => x.PropertyType.EditorAlias.Equals(blockEditorAlias));
+                var contentProperty = page.Properties.FirstOrDefault(x => x.Alias.Equals(blockEditorAlias));
+                if (contentProperty != null)
+                {
+                    var contentPropertyValue = contentProperty.GetSourceValue(culture);
 
-                BlockGridModel? typedBlockGridModel = contentProperty?.GetValue() as BlockGridModel;
+                    var pvc = new Cms.Core.PropertyEditors.ValueConverters.BlockGridPropertyValueConverter(_proflog, _blockEditorConverter, _jsonSerializer, _apiElementBuilder, _constructorCache);
 
-                UpdateBlockGridItem(typedBlockGridModel, contentData, typedBlockInstance);
+                    var obj = pvc.ConvertIntermediateToObject(contentElement, contentProperty.PropertyType, Cms.Core.PropertyEditors.PropertyCacheLevel.Element, contentPropertyValue, false);
+                    
+
+                    //UpdateBlockGridItem(typedBlockGridModel, contentData, typedBlockInstance);
+                }
 
                 ViewDataDictionary? viewData = CreateViewData(typedBlockInstance);
 

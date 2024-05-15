@@ -2,48 +2,44 @@ import { UmbControllerBase } from "@umbraco-cms/backoffice/class-api";
 import { UmbContextToken } from "@umbraco-cms/backoffice/context-api";
 import { UmbControllerHost } from "@umbraco-cms/backoffice/controller-api";
 
-import { BlockPreviewManagementRepository } from "../repository/blockpreview.repository";
+import { BlockPreviewManagementRepository as BlockPreviewRepository } from "../repository/blockpreview.repository";
 
-import { type BlockValueBlockGridLayoutItemModel, type BlockValueBlockListLayoutItemModel, OpenAPI } from "@api";
-import { UMB_AUTH_CONTEXT } from '@umbraco-cms/backoffice/auth'
 import { UmbStringState } from "@umbraco-cms/backoffice/observable-api";
+import { UmbBlockGridValueModel } from "@umbraco-cms/backoffice/block-grid";
 
-export class BlockPreviewManagementContext extends UmbControllerBase {
+export class BlockPreviewContext extends UmbControllerBase {
 
-  #repository: BlockPreviewManagementRepository;
+    #repository: BlockPreviewRepository;
 
-  #markup = new UmbStringState("");
-  public readonly markup = this.#markup.asObservable();
+    #markup = new UmbStringState("");
+    public readonly markup = this.#markup.asObservable();
 
-  constructor(host: UmbControllerHost) {
-    super(host);
-
-    this.provideContext(BLOCKPREVIEW_MANAGEMENT_CONTEXT_TOKEN, this);
-    this.#repository = new BlockPreviewManagementRepository(this);
-
-    this.consumeContext(UMB_AUTH_CONTEXT, (_auth) => {
-      OpenAPI.TOKEN = () => _auth.getLatestToken();
-      OpenAPI.WITH_CREDENTIALS = true;
-    });
-
-  }
-
-  async previewGridMarkup(pageId?: number, blockEditorAlias?: string, culture?: string, requestBody?: BlockValueBlockGridLayoutItemModel) {
-    const { data } = await this.#repository.previewGridMarkup(pageId, blockEditorAlias, culture, requestBody);
-    if (data) {
-      this.#markup.setValue(data);
+    constructor(host: UmbControllerHost) {
+        super(host);
+        this.#repository = new BlockPreviewRepository(this);
     }
-  }
 
-  async previewListMarkup(pageId?: number, blockEditorAlias?: string, culture?: string, requestBody?: BlockValueBlockListLayoutItemModel) {
-    const { data } = await this.#repository.previewListMarkup(pageId, blockEditorAlias, culture, requestBody);
-    if (data) {
-      this.#markup.setValue(data);
+    async previewGridMarkup(pageKey?: string, blockEditorAlias?: string, culture?: string, blockData?: UmbBlockGridValueModel): Promise<string> {
+        const { data } = await this.#repository.previewGridMarkup(pageKey, blockEditorAlias, culture, blockData);
+        if (data) {
+            return data;
+        }
+
+        return '';
     }
-  }
-  
+
+    async previewListMarkup(pageKey?: string, blockEditorAlias?: string, culture?: string, blockData?: string): Promise<string> {
+        const { data } = await this.#repository.previewListMarkup(pageKey, blockEditorAlias, culture, blockData);
+        if (data) {
+            return data;
+        }
+
+        return '';
+    }
+
 }
 
-export default BlockPreviewManagementContext;
+export default BlockPreviewContext;
 
-export const BLOCKPREVIEW_MANAGEMENT_CONTEXT_TOKEN = new UmbContextToken<BlockPreviewManagementContext>(BlockPreviewManagementContext.name);
+export const BLOCK_PREVIEW_CONTEXT =
+    new UmbContextToken<BlockPreviewContext>('BlockPreviewContext');
