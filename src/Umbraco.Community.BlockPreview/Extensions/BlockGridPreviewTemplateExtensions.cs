@@ -9,7 +9,7 @@ namespace Umbraco.Community.BlockPreview.Extensions
     public static class BlockGridPreviewTemplateExtensions
     {
         private static readonly string AREA_TEMPLATE =
-            "<umb-block-grid-render-area-slots></umb-block-grid-render-area-slots>";
+            "<umb-block-grid-areas-container slot=\"areas\"></umb-block-grid-areas-container>";
 
         public static async Task<IHtmlContent> GetPreviewBlockGridItemAreasHtmlAsync(this IHtmlHelper html, BlockGridItem item, string template = BlockGridTemplateExtensions.DefaultItemAreasTemplate)
         {

@@ -1,13 +1,12 @@
-import { UmbBlockViewUrlsPropType } from "@umbraco-cms/backoffice/block";
 import { UMB_BLOCK_GRID_ENTRY_CONTEXT, UmbBlockGridValueModel } from "@umbraco-cms/backoffice/block-grid";
-import BlockPreviewContext, { BLOCK_PREVIEW_CONTEXT } from "../context/blockpreview.context";
 import { UmbDocumentWorkspaceContext } from "@umbraco-cms/backoffice/document";
 import { UmbPropertyEditorUiElement } from "@umbraco-cms/backoffice/extension-registry";
-import { customElement, html, property, state, unsafeHTML } from "@umbraco-cms/backoffice/external/lit";
+import { css, customElement, html, property, state, unsafeHTML } from "@umbraco-cms/backoffice/external/lit";
 import { UmbLitElement } from "@umbraco-cms/backoffice/lit-element";
 import { UMB_PROPERTY_CONTEXT, UMB_PROPERTY_DATASET_CONTEXT } from "@umbraco-cms/backoffice/property";
 import { UMB_WORKSPACE_CONTEXT } from "@umbraco-cms/backoffice/workspace";
 import { UmbBlockGridEntryContext } from "../../node_modules/@umbraco-cms/backoffice/dist-cms/packages/block/block-grid/context/block-grid-entry.context";
+import BlockPreviewContext, { BLOCK_PREVIEW_CONTEXT } from "../context/blockpreview.context";
 
 const elementName = "block-preview";
 export const UMB_BLOCK_LIST_PROPERTY_EDITOR_ALIAS: string = 'Umbraco.BlockList';
@@ -21,12 +20,6 @@ export class BlockPreviewCustomView
     #blockGridEntryContext?: UmbBlockGridEntryContext;
 
     @state()
-    private _contentElementKey: string | undefined = undefined;
-
-    @state()
-    private _settingsElementKey: string | undefined = undefined;
-
-    @state()
     _htmlMarkup: string | undefined = "";
 
     @state()
@@ -38,11 +31,8 @@ export class BlockPreviewCustomView
     @state()
     private _culture?: string = '';
 
-    @property({ attribute: false })
-    label?: string;
-
-    @property({ attribute: false })
-    urls?: UmbBlockViewUrlsPropType;
+    @state()
+    _workspaceEditContentPath?: string;
 
     @state()
     private _value: UmbBlockGridValueModel = {
@@ -79,8 +69,8 @@ export class BlockPreviewCustomView
         this.consumeContext(UMB_BLOCK_GRID_ENTRY_CONTEXT, (instance) => {
             this.#blockGridEntryContext = instance;
 
-            this.observe(this.#blockGridEntryContext.contentUdi, (contentUdi) => {
-                this._contentElementKey = contentUdi;
+            this.observe(this.#blockGridEntryContext.workspaceEditContentPath, (path) => {
+                this._workspaceEditContentPath = path;
             });
 
             this.observe(this.#blockGridEntryContext.content, (content) => {
@@ -107,7 +97,7 @@ export class BlockPreviewCustomView
 
         this.consumeContext(UMB_WORKSPACE_CONTEXT, (nodeContext) => {
             const workspaceContext = (nodeContext as UmbDocumentWorkspaceContext);
-            
+
             this.observe((workspaceContext).unique, (unique) => {
                 this._documentUnique = unique;
             });
@@ -124,10 +114,22 @@ export class BlockPreviewCustomView
 
     render() {
         if (this._htmlMarkup !== "") {
-            return html`${unsafeHTML(this._htmlMarkup)}`;
+            return html`
+                <a href=${this._workspaceEditContentPath}>
+				    ${unsafeHTML(this._htmlMarkup)}
+				</a>`;
         }
         return;
     }
+
+    static styles = [
+        css`
+            a {
+                display: contents;
+                color: inherit;
+            }
+        `
+    ]
 }
 
 export default BlockPreviewCustomView;

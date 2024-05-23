@@ -86,14 +86,8 @@ namespace Umbraco.Community.BlockPreview.Services
                 var contentProperty = page.Properties.FirstOrDefault(x => x.Alias.Equals(blockEditorAlias));
                 if (contentProperty != null)
                 {
-                    var contentPropertyValue = contentProperty.GetSourceValue(culture);
-
-                    var pvc = new Cms.Core.PropertyEditors.ValueConverters.BlockGridPropertyValueConverter(_proflog, _blockEditorConverter, _jsonSerializer, _apiElementBuilder, _constructorCache);
-
-                    var obj = pvc.ConvertIntermediateToObject(contentElement, contentProperty.PropertyType, Cms.Core.PropertyEditors.PropertyCacheLevel.Element, contentPropertyValue, false);
-                    
-
-                    //UpdateBlockGridItem(typedBlockGridModel, contentData, typedBlockInstance);
+                    BlockGridModel? typedBlockGridModel = contentProperty.GetValue(culture) as BlockGridModel;
+                    UpdateBlockGridItem(typedBlockGridModel, contentData, ref typedBlockInstance);
                 }
 
                 ViewDataDictionary? viewData = CreateViewData(typedBlockInstance);
@@ -104,39 +98,23 @@ namespace Umbraco.Community.BlockPreview.Services
             return string.Empty;
         }
 
-        private static void UpdateBlockGridItem(BlockGridModel? typedBlockGridModel, BlockItemData? contentData, BlockGridItem? typedBlockInstance)
+        private static void UpdateBlockGridItem(BlockGridModel? typedBlockGridModel, BlockItemData? contentData, ref BlockGridItem? typedBlockInstance)
         {
-            if (typedBlockGridModel != null)
-            {
-                var blockGridItem = typedBlockGridModel?.FirstOrDefault(x => x.ContentUdi == contentData?.Udi);
+            if (typedBlockGridModel == null || contentData == null || typedBlockInstance == null)
+                return;
 
-                if (blockGridItem == null && typedBlockGridModel != null)
-                {
-                    foreach (BlockGridItem item in typedBlockGridModel)
-                    {
-                        foreach (BlockGridArea area in item.Areas)
-                        {
-                            foreach (BlockGridItem childItem in area)
-                            {
-                                if (childItem.ContentUdi == contentData?.Udi)
-                                {
-                                    blockGridItem = childItem;
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                }
+            var blockGridItem = typedBlockGridModel
+                .SelectMany(item => new[] { item }.Concat(item.Areas.SelectMany(area => area)))
+                .FirstOrDefault(item => item.ContentUdi == contentData.Udi);
 
-                if (blockGridItem != null && typedBlockInstance != null)
-                {
-                    typedBlockInstance.RowSpan = blockGridItem.RowSpan;
-                    typedBlockInstance.ColumnSpan = blockGridItem.ColumnSpan;
-                    typedBlockInstance.AreaGridColumns = blockGridItem.AreaGridColumns;
-                    typedBlockInstance.GridColumns = blockGridItem.GridColumns;
-                    typedBlockInstance.Areas = blockGridItem.Areas;
-                }
-            }
+            if (blockGridItem == null)
+                return;
+
+            typedBlockInstance.RowSpan = blockGridItem.RowSpan;
+            typedBlockInstance.ColumnSpan = blockGridItem.ColumnSpan;
+            typedBlockInstance.AreaGridColumns = blockGridItem.AreaGridColumns;
+            typedBlockInstance.GridColumns = blockGridItem.GridColumns;
+            typedBlockInstance.Areas = blockGridItem.Areas;
         }
 
         public override ViewDataDictionary CreateViewData(object? typedBlockInstance)
