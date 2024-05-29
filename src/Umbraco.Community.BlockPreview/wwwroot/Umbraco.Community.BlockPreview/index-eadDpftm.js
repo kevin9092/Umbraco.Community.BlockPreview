@@ -371,7 +371,7 @@ const O = new D("BlockPreviewContext"), Z = /* @__PURE__ */ Object.freeze(/* @__
   type: "blockEditorCustomView",
   alias: "BlockPreview.CustomView",
   name: "BlockPreview",
-  element: () => import("./block-preview.custom-view-CJ57UTI5.js")
+  element: () => import("./block-preview.custom-view-BHFmYyE8.js")
 }, se = [re], de = (t, e) => {
   e.registerMany([
     ...te,
@@ -387,4 +387,4 @@ export {
   O as B,
   de as o
 };
-//# sourceMappingURL=index-D7HZhpx6.js.map
+//# sourceMappingURL=index-eadDpftm.js.map

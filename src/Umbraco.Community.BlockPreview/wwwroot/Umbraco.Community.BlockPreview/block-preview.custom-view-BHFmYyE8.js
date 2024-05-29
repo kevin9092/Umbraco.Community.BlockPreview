@@ -1,9 +1,9 @@
 import { UMB_BLOCK_GRID_ENTRY_CONTEXT as C } from "@umbraco-cms/backoffice/block-grid";
-import { B as d } from "./index-D7HZhpx6.js";
-import { html as E, unsafeHTML as f, css as k, state as h, property as T, customElement as w } from "@umbraco-cms/backoffice/external/lit";
-import { UmbLitElement as y } from "@umbraco-cms/backoffice/lit-element";
-import { UMB_PROPERTY_CONTEXT as P, UMB_PROPERTY_DATASET_CONTEXT as O } from "@umbraco-cms/backoffice/property";
-import { UMB_WORKSPACE_CONTEXT as M } from "@umbraco-cms/backoffice/workspace";
+import { html as d, unsafeHTML as E, css as f, state as h, property as k, customElement as T } from "@umbraco-cms/backoffice/external/lit";
+import { UmbLitElement as w } from "@umbraco-cms/backoffice/lit-element";
+import { UMB_PROPERTY_CONTEXT as y, UMB_PROPERTY_DATASET_CONTEXT as P } from "@umbraco-cms/backoffice/property";
+import { UMB_WORKSPACE_CONTEXT as O } from "@umbraco-cms/backoffice/workspace";
+import { B as M } from "./index-eadDpftm.js";
 var A = Object.defineProperty, B = Object.getOwnPropertyDescriptor, r = (e, t, s, i) => {
   for (var a = i > 1 ? void 0 : i ? B(t, s) : t, l = e.length - 1, u; l >= 0; l--)
     (u = e[l]) && (a = (i ? u(t, s, a) : u(a)) || a);
@@ -17,15 +17,15 @@ var A = Object.defineProperty, B = Object.getOwnPropertyDescriptor, r = (e, t, s
   t instanceof WeakSet ? t.add(e) : t.set(e, s);
 }, v = (e, t, s, i) => (m(e, t, "write to private field"), i ? i.call(e, s) : t.set(e, s), s), _, n;
 const D = "block-preview", g = "Umbraco.BlockList";
-let o = class extends y {
+let o = class extends w {
   constructor() {
     super(), p(this, _, void 0), p(this, n, void 0), this._htmlMarkup = "", this._documentUnique = "", this._blockEditorAlias = "", this._culture = "", this._value = {
       layout: {},
       contentData: [],
       settingsData: []
-    }, this.consumeContext(d, (e) => {
+    }, this.consumeContext(M, (e) => {
       v(this, _, e);
-    }), this.consumeContext(P, (e) => {
+    }), this.consumeContext(y, (e) => {
       this.observe(e.alias, (t) => {
         this._blockEditorAlias = t;
       });
@@ -44,9 +44,9 @@ let o = class extends y {
         const s = [t];
         this._value = { ...this._value, layout: { "Umbraco.BlockGrid": s } };
       });
-    }), this.consumeContext(O, (e) => {
+    }), this.consumeContext(P, (e) => {
       this._culture = e.getVariantId().culture ?? void 0;
-    }), this.consumeContext(M, (e) => {
+    }), this.consumeContext(O, (e) => {
       const t = e;
       this.observe(t.unique, (s) => {
         this._documentUnique = s;
@@ -65,16 +65,16 @@ let o = class extends y {
   }
   render() {
     if (this._htmlMarkup !== "")
-      return E`
+      return d`
                 <a href=${this._workspaceEditContentPath}>
-				    ${f(this._htmlMarkup)}
+				    ${E(this._htmlMarkup)}
 				</a>`;
   }
 };
 _ = /* @__PURE__ */ new WeakMap();
 n = /* @__PURE__ */ new WeakMap();
 o.styles = [
-  k`
+  f`
             a {
                 display: contents;
                 color: inherit;
@@ -100,10 +100,10 @@ r([
   h()
 ], o.prototype, "_value", 2);
 r([
-  T({ attribute: !1 })
+  k({ attribute: !1 })
 ], o.prototype, "value", 1);
 o = r([
-  w(D)
+  T(D)
 ], o);
 const I = o;
 export {
@@ -111,4 +111,4 @@ export {
   g as UMB_BLOCK_LIST_PROPERTY_EDITOR_ALIAS,
   I as default
 };
-//# sourceMappingURL=block-preview.custom-view-CJ57UTI5.js.map
+//# sourceMappingURL=block-preview.custom-view-BHFmYyE8.js.map
