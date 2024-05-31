@@ -1,7 +1,7 @@
 import { UMB_BLOCK_GRID_ENTRY_CONTEXT, UmbBlockGridValueModel } from "@umbraco-cms/backoffice/block-grid";
 import { UmbDocumentWorkspaceContext } from "@umbraco-cms/backoffice/document";
 import { UmbPropertyEditorUiElement } from "@umbraco-cms/backoffice/extension-registry";
-import { css, customElement, html, property, state, unsafeHTML } from "@umbraco-cms/backoffice/external/lit";
+import { css, customElement, html, ifDefined, property, state, unsafeHTML } from "@umbraco-cms/backoffice/external/lit";
 import { UmbLitElement } from "@umbraco-cms/backoffice/lit-element";
 import { UMB_PROPERTY_CONTEXT, UMB_PROPERTY_DATASET_CONTEXT } from "@umbraco-cms/backoffice/property";
 import { UMB_WORKSPACE_CONTEXT } from "@umbraco-cms/backoffice/workspace";
@@ -69,6 +69,8 @@ export class BlockPreviewCustomView
         this.consumeContext(UMB_BLOCK_GRID_ENTRY_CONTEXT, (instance) => {
             this.#blockGridEntryContext = instance;
 
+            debugger;
+
             this.observe(this.#blockGridEntryContext.workspaceEditContentPath, (path) => {
                 this._workspaceEditContentPath = path;
             });
@@ -115,9 +117,9 @@ export class BlockPreviewCustomView
     render() {
         if (this._htmlMarkup !== "") {
             return html`
-                <a href=${this._workspaceEditContentPath}>
-				    ${unsafeHTML(this._htmlMarkup)}
-				</a>`;
+                <a href=${ifDefined(this._workspaceEditContentPath)}>
+                    ${unsafeHTML(this._htmlMarkup)}
+                </a>`;
         }
         return;
     }
@@ -125,8 +127,15 @@ export class BlockPreviewCustomView
     static styles = [
         css`
             a {
-                display: contents;
-                color: inherit;
+              display: block;
+              color: inherit;
+              text-decoration: inherit;
+              border: 1px solid transparent;
+              border-radius: 2px;
+            }
+
+            a:hover {
+                border-color: var(--uui-color-interactive-emphasis, #3544b1);
             }
         `
     ]
