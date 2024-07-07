@@ -1,24 +1,24 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using Umbraco.Cms.Core.DependencyInjection;
-using Microsoft.Extensions.Configuration;
+﻿using Umbraco.Cms.Core.DependencyInjection;
 using Microsoft.Extensions.Options;
-
+using Microsoft.Extensions.DependencyInjection;
 namespace Umbraco.Community.BlockPreview.Extensions
 {
     public static class BlockPreviewUmbracoBuilderExtensions
     {
-        public static IUmbracoBuilder AddBlockPreviewOptions(this IUmbracoBuilder builder,
+        public static IUmbracoBuilder AddBlockPreview(this IUmbracoBuilder builder)
+            => builder.AddBlockPreview();
+
+        public static IUmbracoBuilder AddBlockPreview(this IUmbracoBuilder builder, Action<BlockPreviewOptions> configure)
+            => builder.AddBlockPreview(optionsBuilder => optionsBuilder.Configure(configure));
+
+        public static IUmbracoBuilder AddBlockPreview(this IUmbracoBuilder builder,
             Action<OptionsBuilder<BlockPreviewOptions>>? configure = null)
         {
+            ArgumentNullException.ThrowIfNull(builder);
+
             var optionsBuilder = builder.Services.AddOptions<BlockPreviewOptions>()
-                .Bind(builder.Config.GetSection(Constants.Configuration.AppSettingsRoot))
-                .PostConfigure(x =>
-                {
-                    x.ViewLocations.BlockGrid.Add(Constants.DefaultViewLocations.BlockGrid);
-                    x.ViewLocations.BlockList.Add(Constants.DefaultViewLocations.BlockList);
-                })
-                .ValidateDataAnnotations()
-                .ValidateOnStart();
+                .BindConfiguration(Constants.Configuration.AppPluginsRoot)
+                .ValidateDataAnnotations();
 
             configure?.Invoke(optionsBuilder);
 

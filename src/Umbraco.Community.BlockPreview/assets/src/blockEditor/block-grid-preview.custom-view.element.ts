@@ -1,35 +1,34 @@
 import { UMB_BLOCK_GRID_ENTRY_CONTEXT, UmbBlockGridValueModel } from "@umbraco-cms/backoffice/block-grid";
 import { UmbDocumentWorkspaceContext } from "@umbraco-cms/backoffice/document";
-import { UmbPropertyEditorUiElement } from "@umbraco-cms/backoffice/extension-registry";
 import { css, customElement, html, ifDefined, property, state, unsafeHTML } from "@umbraco-cms/backoffice/external/lit";
 import { UmbLitElement } from "@umbraco-cms/backoffice/lit-element";
 import { UMB_PROPERTY_CONTEXT, UMB_PROPERTY_DATASET_CONTEXT } from "@umbraco-cms/backoffice/property";
 import { UMB_WORKSPACE_CONTEXT } from "@umbraco-cms/backoffice/workspace";
 import { UmbBlockGridEntryContext } from "../../node_modules/@umbraco-cms/backoffice/dist-cms/packages/block/block-grid/context/block-grid-entry.context";
-import BlockPreviewContext, { BLOCK_PREVIEW_CONTEXT } from "../context/blockpreview.context";
+import { BlockPreviewService } from "../api";
+import { tryExecuteAndNotify } from "@umbraco-cms/backoffice/resources";
+import { UmbBlockEditorCustomViewElement } from "..";
 
-const elementName = "block-preview";
-export const UMB_BLOCK_LIST_PROPERTY_EDITOR_ALIAS: string = 'Umbraco.BlockList';
+const elementName = "block-grid-preview";
 
 @customElement(elementName)
-export class BlockPreviewCustomView
+export class BlockGridPreviewCustomView
     extends UmbLitElement
-    implements UmbPropertyEditorUiElement {
-
-    #blockPreviewContext?: BlockPreviewContext;
+    implements UmbBlockEditorCustomViewElement {
+        
     #blockGridEntryContext?: UmbBlockGridEntryContext;
 
     @state()
     _htmlMarkup: string | undefined = "";
 
     @state()
-    private _documentUnique?: string = '';
+    private documentUnique?: string = '';
 
     @state()
     private _blockEditorAlias?: string = '';
 
     @state()
-    private _culture?: string = '';
+    private culture?: string = '';
 
     @state()
     _workspaceEditContentPath?: string;
@@ -56,10 +55,6 @@ export class BlockPreviewCustomView
     constructor() {
         super();
 
-        this.consumeContext(BLOCK_PREVIEW_CONTEXT, (instance) => {
-            this.#blockPreviewContext = instance;
-        });
-
         this.consumeContext(UMB_PROPERTY_CONTEXT, (instance) => {
             this.observe(instance.alias, (alias) => {
                 this._blockEditorAlias = alias;
@@ -68,8 +63,6 @@ export class BlockPreviewCustomView
 
         this.consumeContext(UMB_BLOCK_GRID_ENTRY_CONTEXT, (instance) => {
             this.#blockGridEntryContext = instance;
-
-            debugger;
 
             this.observe(this.#blockGridEntryContext.workspaceEditContentPath, (path) => {
                 this._workspaceEditContentPath = path;
@@ -94,14 +87,14 @@ export class BlockPreviewCustomView
         });
 
         this.consumeContext(UMB_PROPERTY_DATASET_CONTEXT, (instance) => {
-            this._culture = instance.getVariantId().culture ?? undefined;
+            this.culture = instance.getVariantId().culture ?? undefined;
         });
 
         this.consumeContext(UMB_WORKSPACE_CONTEXT, (nodeContext) => {
             const workspaceContext = (nodeContext as UmbDocumentWorkspaceContext);
 
             this.observe((workspaceContext).unique, (unique) => {
-                this._documentUnique = unique;
+                this.documentUnique = unique;
             });
         });
     }
@@ -109,8 +102,12 @@ export class BlockPreviewCustomView
     async connectedCallback() {
         super.connectedCallback();
 
-        if (this.#blockPreviewContext != null && this.value != null) {
-            this._htmlMarkup = await this.#blockPreviewContext.previewGridMarkup(this._documentUnique, this._blockEditorAlias, this._culture, this.value);
+        if (this.value != null) {
+            const { data } = await tryExecuteAndNotify(this, BlockPreviewService.postUmbracoManagementApiV1BlockPreviewPreviewGrid({ blockEditorAlias: this._blockEditorAlias, culture: this.culture, pageKey: this.documentUnique, requestBody: JSON.stringify(this.value) }));
+
+            if (data) {
+                this._htmlMarkup = data;
+            }
         }
     }
 
@@ -141,10 +138,10 @@ export class BlockPreviewCustomView
     ]
 }
 
-export default BlockPreviewCustomView;
+export default BlockGridPreviewCustomView;
 
 declare global {
     interface HTMLElementTagNameMap {
-        [elementName]: BlockPreviewCustomView;
+        [elementName]: BlockGridPreviewCustomView;
     }
 }

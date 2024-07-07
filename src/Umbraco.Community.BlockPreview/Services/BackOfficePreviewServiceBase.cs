@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Lucene.Net.Util;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.Razor;
@@ -137,37 +138,58 @@ namespace Umbraco.Community.BlockPreview.Services
             string? contentAlias,
             bool isGrid = false)
         {
-            List<string> viewPaths = isGrid ? _options.ViewLocations.BlockGrid : _options.ViewLocations.BlockList;
+            string[]? viewPaths =
+                isGrid ?
+                    [Constants.DefaultViewLocations.BlockGrid] :
+                    [Constants.DefaultViewLocations.BlockList];
 
-            foreach (var viewPath in viewPaths)
+            if (isGrid)
             {
-                string formattedViewPath = string.Format($"~{viewPath}", contentAlias);
-                ViewEngineResult viewResult = _razorViewEngine.GetView("", formattedViewPath, false);
-
-                if (!viewResult.Success)
+                if (_options.BlockGrid?.ViewLocations != null && _options.BlockGrid?.ViewLocations?.Any() == true)
                 {
-                    formattedViewPath = string.Format($"~{viewPath}", contentAlias?.ToPascalCase());
-                    viewResult = _razorViewEngine.GetView("", formattedViewPath, false);
+                    viewPaths.AddRange(_options.BlockGrid?.ViewLocations);
+                }
+            }
+            else
+            {
+                if (_options.BlockList?.ViewLocations != null && _options.BlockList?.ViewLocations?.Any() == true)
+                {
+                    viewPaths.AddRange(_options.BlockList?.ViewLocations!);
+                }
+            }
+
+            if (viewPaths != null && viewPaths?.Any() == true)
+            {
+                foreach (var viewPath in viewPaths)
+                {
+                    string formattedViewPath = string.Format($"~{viewPath}", contentAlias);
+                    ViewEngineResult viewResult = _razorViewEngine.GetView("", formattedViewPath, false);
 
                     if (!viewResult.Success)
+                    {
+                        formattedViewPath = string.Format($"~{viewPath}", contentAlias?.ToPascalCase());
+                        viewResult = _razorViewEngine.GetView("", formattedViewPath, false);
+
+                        if (!viewResult.Success)
+                            continue;
+                    }
+
+                    var actionContext = new ActionContext(controllerContext.HttpContext, new RouteData(), new ActionDescriptor());
+                    if (viewResult?.View == null)
                         continue;
+
+                    await using var sw = new StringWriter();
+
+                    if (viewData != null)
+                    {
+                        var viewContext = new ViewContext(actionContext, viewResult.View, viewData,
+                            new TempDataDictionary(actionContext.HttpContext, _tempDataProvider), sw, new HtmlHelperOptions());
+
+                        await viewResult.View.RenderAsync(viewContext);
+                    }
+
+                    return sw.ToString();
                 }
-
-                var actionContext = new ActionContext(controllerContext.HttpContext, new RouteData(), new ActionDescriptor());
-                if (viewResult?.View == null)
-                    continue;
-
-                await using var sw = new StringWriter();
-
-                if (viewData != null)
-                {
-                    var viewContext = new ViewContext(actionContext, viewResult.View, viewData,
-                        new TempDataDictionary(actionContext.HttpContext, _tempDataProvider), sw, new HtmlHelperOptions());
-
-                    await viewResult.View.RenderAsync(viewContext);
-                }
-
-                return sw.ToString();
             }
 
             return string.Empty;
@@ -201,7 +223,7 @@ namespace Umbraco.Community.BlockPreview.Services
             ControllerContext controllerContext,
             string? culture)
         {
-            return await Task.FromResult<string>(string.Empty);
+            return await Task.FromResult(string.Empty);
         }
 
         private sealed class FakeView : IView

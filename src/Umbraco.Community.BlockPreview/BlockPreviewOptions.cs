@@ -2,26 +2,22 @@
 {
     public class BlockPreviewOptions
     {
+        public BlockTypeSettings BlockGrid { get; set; }
+        public BlockTypeSettings BlockList { get; set; }
+
+        public IEnumerable<string>? GetAllViewLocations() => BlockGrid?.ViewLocations?.Concat(BlockList?.ViewLocations!);
+
         public BlockPreviewOptions()
         {
-            ViewLocations = new ViewLocations();
+            BlockGrid = new();
+            BlockList = new();
         }
-
-        public ViewLocations ViewLocations { get; set; }
     }
 
-    public class ViewLocations
+    public class BlockTypeSettings
     {
-        public ViewLocations()
-        {
-            BlockList = new List<string>();
-            BlockGrid = new List<string>();
-        }
-
-        public List<string> BlockList { get; set; }
-
-        public List<string> BlockGrid { get; set; }
-
-        public IEnumerable<string> GetAll() => BlockList.Concat(BlockGrid);
+        public bool Enabled { get; set; }
+        public string[]? ViewLocations { get; set; }
+        public string[]? ContentTypes { get; set; }
     }
 }

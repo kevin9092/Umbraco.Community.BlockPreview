@@ -11,6 +11,7 @@ using Umbraco.Cms.Core.Models.Blocks;
 using Umbraco.Cms.Core.Models.PublishedContent;
 using Umbraco.Cms.Core.PropertyEditors.ValueConverters;
 using Umbraco.Cms.Core.Serialization;
+using Umbraco.Cms.Core.Services;
 using Umbraco.Community.BlockPreview.Interfaces;
 
 namespace Umbraco.Community.BlockPreview.Services
@@ -19,10 +20,7 @@ namespace Umbraco.Community.BlockPreview.Services
     {
         private readonly ContextCultureService _contextCultureService;
         private readonly IJsonSerializer _jsonSerializer;
-        private readonly IProfilingLogger _proflog;
-        private readonly BlockEditorConverter _blockEditorConverter;
-        private readonly IApiElementBuilder _apiElementBuilder;
-        private readonly BlockGridPropertyValueConstructorCache _constructorCache;
+        private readonly IDataTypeService _dataTypeService;
 
         public BackOfficeGridPreviewService(
             BlockEditorConverter blockEditorConverter,
@@ -35,17 +33,12 @@ namespace Umbraco.Community.BlockPreview.Services
             IOptions<BlockPreviewOptions> options,
             IRazorViewEngine razorViewEngine,
             IJsonSerializer jsonSerializer,
-            IProfilingLogger proflog,
-            IApiElementBuilder apiElementBuilder,
-            BlockGridPropertyValueConstructorCache constructorCache)
+            IDataTypeService dataTypeService)
             : base(tempDataProvider, viewComponentHelperWrapper, razorViewEngine, typeFinder, blockEditorConverter, viewComponentSelector, publishedValueFallback, options)
         {
             _contextCultureService = contextCultureService;
             _jsonSerializer = jsonSerializer;
-            _proflog = proflog;
-            _apiElementBuilder = apiElementBuilder;
-            _blockEditorConverter = blockEditorConverter;
-            _constructorCache = constructorCache;
+            _dataTypeService = dataTypeService;
         }
 
         public override async Task<string> GetMarkupForBlock(
@@ -63,8 +56,8 @@ namespace Umbraco.Community.BlockPreview.Services
             var converter = new BlockGridEditorDataConverter(_jsonSerializer);
             converter.TryDeserialize(blockData, out BlockEditorData<BlockGridValue, BlockGridLayoutItem>? blockValue);
 
-            BlockItemData? contentData = blockValue?.BlockValue.ContentData.FirstOrDefault();
-            BlockItemData? settingsData = blockValue?.BlockValue.SettingsData.FirstOrDefault();
+            BlockItemData? contentData = blockValue?.BlockValue?.ContentData.FirstOrDefault();
+            BlockItemData? settingsData = blockValue?.BlockValue?.SettingsData.FirstOrDefault();
 
             if (contentData != null)
             {

@@ -1,18 +1,13 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Umbraco.Cms.Api.Common.Attributes;
-using Umbraco.Cms.Api.Common.Filters;
-using Umbraco.Cms.Core.Features;
+using Umbraco.Cms.Api.Management.Controllers;
+using Umbraco.Cms.Api.Management.Routing;
 using Umbraco.Cms.Web.Common.Authorization;
-using Umbraco.Cms.Web.Common.Routing;
 
 namespace Umbraco.Community.BlockPreview.Controllers
 {
-    [ApiController]
-    [BackOfficeRoute("blockpreview/api/v{version:apiVersion}")]
+    [ApiExplorerSettings(GroupName = "BlockPreview")]
     [Authorize(Policy = AuthorizationPolicies.BackOfficeAccess)]
-    [MapToApi("blockpreview")]
-    public class BlockPreviewApiControllerBase : Controller, IUmbracoFeature
-    {
-    }
+    [VersionedApiBackOfficeRoute("block-preview")]
+    public class BlockPreviewApiControllerBase : ManagementApiControllerBase { }
 }

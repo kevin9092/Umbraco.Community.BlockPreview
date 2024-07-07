@@ -30,10 +30,10 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Umbraco.Cms.Web.Common" Version="14.0.0" />
-		<PackageReference Include="Umbraco.Cms.Web.Website" Version="14.0.0" />
-		<PackageReference Include="Umbraco.Cms.Api.Common" Version="14.0.0" />
-		<PackageReference Include="Umbraco.Cms.Api.Management" Version="14.0.0" />	
+		<PackageReference Include="Umbraco.Cms.Web.Common" Version="14.1.0-rc2" />
+		<PackageReference Include="Umbraco.Cms.Web.Website" Version="14.1.0-rc2" />
+		<PackageReference Include="Umbraco.Cms.Api.Common" Version="14.1.0-rc2" />
+		<PackageReference Include="Umbraco.Cms.Api.Management" Version="14.1.0-rc2" />	
 	</ItemGroup>
 
 	<ItemGroup>
@@ -45,9 +45,5 @@
 			<Pack>True</Pack>
 			<PackagePath>\</PackagePath>
 		</None>
-	</ItemGroup>
-
-	<ItemGroup>
-	  <Folder Include="assets\" />
 	</ItemGroup>
 </Project>

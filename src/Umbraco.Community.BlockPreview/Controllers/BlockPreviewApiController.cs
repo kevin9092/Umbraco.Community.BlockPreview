@@ -8,10 +8,12 @@ using Umbraco.Cms.Core.Routing;
 using Umbraco.Cms.Core.Web;
 using Umbraco.Extensions;
 using Umbraco.Community.BlockPreview.Services;
-using Asp.Versioning;
+using Umbraco.Cms.Api.Management.Routing;
 using Umbraco.Cms.Core.Services;
+using Asp.Versioning;
+using Microsoft.Extensions.Options;
 using Umbraco.Cms.Core.Models.Blocks;
-using System.Text.Json;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Umbraco.Community.BlockPreview.Controllers
 {
@@ -19,7 +21,7 @@ namespace Umbraco.Community.BlockPreview.Controllers
     /// Represents the Block Preview API controller.
     /// </summary>
     [ApiVersion("1.0")]
-    [ApiExplorerSettings(GroupName = "BlockPreview")]
+    [VersionedApiBackOfficeRoute("block-preview")]
     public class BlockPreviewApiController : BlockPreviewApiControllerBase
     {
         private readonly IPublishedRouter _publishedRouter;
@@ -30,6 +32,7 @@ namespace Umbraco.Community.BlockPreview.Controllers
         private readonly IBackOfficeGridPreviewService _backOfficeGridPreviewService;
         private readonly ILanguageService _languageService;
         private readonly ISiteDomainMapper _siteDomainMapper;
+        private readonly BlockPreviewOptions _blockPreviewSettings;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="BlockPreviewApiController"/> class.
@@ -42,7 +45,8 @@ namespace Umbraco.Community.BlockPreview.Controllers
             IBackOfficeListPreviewService backOfficeListPreviewService,
             IBackOfficeGridPreviewService backOfficeGridPreviewService,
             ILanguageService languageService,
-            ISiteDomainMapper siteDomainMapper)
+            ISiteDomainMapper siteDomainMapper,
+            IOptionsMonitor<BlockPreviewOptions> blockPreviewSettings)
         {
             _publishedRouter = publishedRouter;
             _logger = logger;
@@ -52,23 +56,24 @@ namespace Umbraco.Community.BlockPreview.Controllers
             _backOfficeGridPreviewService = backOfficeGridPreviewService;
             _languageService = languageService;
             _siteDomainMapper = siteDomainMapper;
+            _blockPreviewSettings = blockPreviewSettings.CurrentValue;
         }
 
         /// <summary>
-        /// Renders a preview for a grid block using the associated razor view.
+        /// Renders a preview for a grid block using the associated Razor view or ViewComponent.
         /// </summary>
         /// <param name="data">The JSON content data of the block.</param>
         /// <param name="pageId">The current page id.</param>
         /// <param name="blockEditorAlias">The alias of the block editor</param>
         /// <param name="culture">The culture</param>
         /// <returns>The markup to render in the preview.</returns>
-        [HttpPost("previewGridMarkup")]
+        [HttpPost("preview/grid")]
         [ProducesResponseType(typeof(string), 200)]
         public async Task<IActionResult> PreviewGridMarkup(
             [FromBody] string blockData,
-            [FromQuery] Guid pageKey,
+            [FromQuery] Guid pageKey = default(Guid),
             [FromQuery] string blockEditorAlias = "",
-            [FromQuery] string culture = "")
+            [FromQuery] string? culture = "")
         {
             string markup;
 
@@ -91,7 +96,7 @@ namespace Umbraco.Community.BlockPreview.Controllers
 
                 await SetupPublishedRequest(page, currentCulture);
 
-                markup = await _backOfficeGridPreviewService.GetMarkupForBlock(page, blockData, blockEditorAlias, ControllerContext, currentCulture);
+                markup = await _backOfficeGridPreviewService.GetMarkupForBlock(page, blockData, blockEditorAlias, ControllerContext, culture);
             }
             catch (Exception ex)
             {
@@ -104,18 +109,18 @@ namespace Umbraco.Community.BlockPreview.Controllers
         }
 
         /// <summary>
-        /// Renders a preview for a list block using the associated razor view.
+        /// Renders a preview for a list block using the associated Razor view or ViewComponent.
         /// </summary>
         /// <param name="data">The JSON content data of the block.</param>
         /// <param name="pageId">The current page id.</param>
         /// <param name="blockEditorAlias">The alias of the block editor</param>
         /// <param name="culture">The culture</param>
         /// <returns>The markup to render in the preview.</returns>
-        [HttpPost("previewListMarkup")]
+        [HttpPost("preview/list")]
         [ProducesResponseType(typeof(string), 200)]
         public async Task<IActionResult> PreviewListMarkup(
             [FromBody] string blockData,
-            [FromQuery] Guid pageKey,
+            [FromQuery] Guid pageKey = default(Guid),
             [FromQuery] string blockEditorAlias = "",
             [FromQuery] string culture = "")
         {
@@ -140,16 +145,28 @@ namespace Umbraco.Community.BlockPreview.Controllers
 
                 await SetupPublishedRequest(page, currentCulture);
 
-                markup = await _backOfficeListPreviewService.GetMarkupForBlock(page, blockData, blockEditorAlias, ControllerContext, currentCulture);
+                markup = await _backOfficeListPreviewService.GetMarkupForBlock(page, blockData, blockEditorAlias, ControllerContext, culture);
             }
             catch (Exception ex)
             {
                 markup = $"<div class=\"alert alert-error\"><strong>Something went wrong rendering a preview.</strong><br/><pre>{ex.Message}</pre></div>";
-                _logger.LogError(ex, "Error rendering preview for block {ContentTypeAlias}");
+                _logger.LogError(ex, $"Error rendering preview for block {blockEditorAlias}");
             }
 
             string? cleanMarkup = CleanUpMarkup(markup);
             return Ok(cleanMarkup);
+        }
+
+        /// <summary>
+        /// Loads the in-memory settings from appsettings.json
+        /// </summary>
+        /// <returns><see cref="BlockPreviewOptions">Block Preview settings</see></returns>
+        [AllowAnonymous]
+        [HttpGet("settings")]
+        [ProducesResponseType(typeof(BlockPreviewOptions), 200)]
+        public BlockPreviewOptions GetSettings()
+        {
+            return _blockPreviewSettings;
         }
 
         private async Task<string?> GetCurrentCulture(IPublishedContent page, string culture)
