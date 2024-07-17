@@ -23,30 +23,6 @@ or the older NuGet Package Manager:
 Install-Package Umbraco.Community.BlockPreview
 ```
 
-### Setup
-#### v1.7.0+
-If you are using a version prior to 1.7.0, you will likely have a reference to `AddBlockPreview()` in your `Startup.cs`. This can now be removed!
-
-#### Versions earlier than 1.7.0
-Once installed, you'll need to add `AddBlockPreview()` to your `Startup.cs` file, before `AddWebsite()`.
-```diff
-+ @using Umbraco.Community.BlockPreview;
- 
- public void ConfigureServices(IServiceCollection services)
- {
-     services.AddUmbraco(_env, _config)
-         .AddBackOffice()
-+        .AddBlockPreview()
-         .AddWebsite()
-         .AddComposers()
-         .Build();
- }
-```
-
-### Upgrading
-If you're upgrading from any version before `1.7.0`, you will need to remove the `App_Plugins/Umbraco.Community.BlockPreview` folder.
-
-
 ## Usage
 This package installs a custom Angular preview for both the Block List and Block Grid editors in the backoffice.
 
