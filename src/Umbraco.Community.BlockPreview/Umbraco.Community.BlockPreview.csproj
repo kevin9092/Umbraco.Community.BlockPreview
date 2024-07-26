@@ -30,10 +30,10 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Umbraco.Cms.Web.Common" Version="14.1.0-rc2" />
-		<PackageReference Include="Umbraco.Cms.Web.Website" Version="14.1.0-rc2" />
-		<PackageReference Include="Umbraco.Cms.Api.Common" Version="14.1.0-rc2" />
-		<PackageReference Include="Umbraco.Cms.Api.Management" Version="14.1.0-rc2" />	
+		<PackageReference Include="Umbraco.Cms.Web.Common" Version="14.2.0--rc.preview.13.gbec0bd6" />
+		<PackageReference Include="Umbraco.Cms.Web.Website" Version="14.2.0--rc.preview.13.gbec0bd6" />
+		<PackageReference Include="Umbraco.Cms.Api.Common" Version="14.2.0--rc.preview.13.gbec0bd6" />
+		<PackageReference Include="Umbraco.Cms.Api.Management" Version="14.2.0--rc.preview.13.gbec0bd6" />	
 	</ItemGroup>
 
 	<ItemGroup>
