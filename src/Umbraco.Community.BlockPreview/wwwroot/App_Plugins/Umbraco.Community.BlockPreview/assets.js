@@ -377,7 +377,7 @@ var me = Object.defineProperty, ve = Object.getOwnPropertyDescriptor, p = (t, e,
 }, X = (t, e, r) => {
   if (!e.has(t))
     throw TypeError("Cannot " + r);
-}, g = (t, e, r) => (X(t, e, "read from private field"), r ? r.call(t) : e.get(t)), be = (t, e, r) => {
+}, C = (t, e, r) => (X(t, e, "read from private field"), r ? r.call(t) : e.get(t)), be = (t, e, r) => {
   if (e.has(t))
     throw TypeError("Cannot add the same private member more than once");
   e instanceof WeakSet ? e.add(t) : e.set(t, r);
@@ -394,17 +394,17 @@ let d = class extends K {
         this._blockEditorAlias = e;
       });
     }), this.consumeContext(te, (t) => {
-      we(this, y, t), this.observe(g(this, y).workspaceEditContentPath, (e) => {
+      we(this, y, t), this.observe(C(this, y).workspaceEditContentPath, (e) => {
         this._workspaceEditContentPath = e;
-      }), this.observe(g(this, y).content, (e) => {
+      }), this.observe(C(this, y).content, (e) => {
         const r = [e];
         this._value = { ...this._value, contentData: r };
-      }), this.observe(g(this, y).settings, (e) => {
+      }), this.observe(C(this, y).settings, (e) => {
         if (e !== void 0) {
           const r = [e];
           this._value = { ...this._value, settingsData: r };
         }
-      }), this.observe(g(this, y).layout, (e) => {
+      }), this.observe(C(this, y).layout, (e) => {
         const r = [e];
         this._value = { ...this._value, layout: { "Umbraco.BlockGrid": r } };
       });
@@ -478,14 +478,14 @@ p([
 d = p([
   j(Ee)
 ], d);
-var ge = Object.defineProperty, Ce = Object.getOwnPropertyDescriptor, f = (t, e, r, s) => {
-  for (var i = s > 1 ? void 0 : s ? Ce(e, r) : e, o = t.length - 1, n; o >= 0; o--)
+var Ce = Object.defineProperty, ge = Object.getOwnPropertyDescriptor, f = (t, e, r, s) => {
+  for (var i = s > 1 ? void 0 : s ? ge(e, r) : e, o = t.length - 1, n; o >= 0; o--)
     (n = t[o]) && (i = (s ? n(e, r, i) : n(i)) || i);
-  return s && i && ge(e, r, i), i;
+  return s && i && Ce(e, r, i), i;
 }, z = (t, e, r) => {
   if (!e.has(t))
     throw TypeError("Cannot " + r);
-}, C = (t, e, r) => (z(t, e, "read from private field"), r ? r.call(t) : e.get(t)), Te = (t, e, r) => {
+}, g = (t, e, r) => (z(t, e, "read from private field"), r ? r.call(t) : e.get(t)), Te = (t, e, r) => {
   if (e.has(t))
     throw TypeError("Cannot add the same private member more than once");
   e instanceof WeakSet ? e.add(t) : e.set(t, r);
@@ -502,17 +502,17 @@ let h = class extends K {
         this._blockEditorAlias = e;
       });
     }), this.consumeContext(re, (t) => {
-      ke(this, _, t), this.observe(C(this, _).workspaceEditContentPath, (e) => {
+      ke(this, _, t), this.observe(g(this, _).workspaceEditContentPath, (e) => {
         this._workspaceEditContentPath = e;
-      }), this.observe(C(this, _).content, (e) => {
+      }), this.observe(g(this, _).content, (e) => {
         const r = [e];
         this._value = { ...this._value, contentData: r };
-      }), this.observe(C(this, _).settings, (e) => {
+      }), this.observe(g(this, _).settings, (e) => {
         if (e !== void 0) {
           const r = [e];
           this._value = { ...this._value, settingsData: r };
         }
-      }), this.observe(C(this, _).layout, (e) => {
+      }), this.observe(g(this, _).layout, (e) => {
         const r = [e];
         this._value = { ...this._value, layout: { "Umbraco.BlockList": r } };
       });
@@ -592,7 +592,6 @@ const Le = async (t, e) => {
   let i = [];
   if (s) {
     if (s.blockGrid.enabled) {
-      debugger;
       let a = {
         type: "blockEditorCustomView",
         alias: "BlockPreview.GridCustomView",

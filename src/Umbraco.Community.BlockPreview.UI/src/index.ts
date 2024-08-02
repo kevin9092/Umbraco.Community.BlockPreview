@@ -1,14 +1,14 @@
 import { UmbEntryPointOnInit } from '@umbraco-cms/backoffice/extension-api';
 import { UMB_AUTH_CONTEXT } from '@umbraco-cms/backoffice/auth';
 import { ManifestBlockEditorCustomView } from '@umbraco-cms/backoffice/extension-registry';
-import { OpenAPI } from './api';
 
 export * from './repository';
 export * from './blockEditor';
 
 import { SettingsRepository } from './repository';
 import { BlockGridPreviewCustomView } from './blockEditor/block-grid-preview.custom-view.element.ts';
-import { BlockListPreviewCustomView }  from './blockEditor/block-list-preview.custom-view.element.ts';
+import { BlockListPreviewCustomView } from './blockEditor/block-list-preview.custom-view.element.ts';
+import { OpenAPI } from './api/index.ts';
 
 export const onInit: UmbEntryPointOnInit = async (host, extensionRegistry) => {
 
@@ -19,8 +19,6 @@ export const onInit: UmbEntryPointOnInit = async (host, extensionRegistry) => {
 
     if (settings) {
         if (settings.blockGrid.enabled) {
-            debugger;
-
             let blockGridManifest: ManifestBlockEditorCustomView = {
                 type: 'blockEditorCustomView',
                 alias: 'BlockPreview.GridCustomView',
