@@ -1,8 +1,8 @@
-<Project Sdk="Microsoft.VisualStudio.JavaScript.Sdk/1.0.784122">
-	<PropertyGroup>
-		<StartupCommand>npm run dev</StartupCommand>
-		<ShouldRunNpmBuildScript>true</ShouldRunNpmBuildScript>
-		<StaticWebAssetSourceId>Umbraco.Community.BlockPreview</StaticWebAssetSourceId>
-		<DebugAssetsDirectory>$(MSBuildProjectDirectory)\dist</DebugAssetsDirectory>
-	</PropertyGroup>
+﻿<Project Sdk="Microsoft.VisualStudio.JavaScript.Sdk/1.0.784122">
+  <PropertyGroup>
+    <ShouldRunNpmInstall>false</ShouldRunNpmInstall>
+    <ShouldRunNpmBuildScript>false</ShouldRunNpmBuildScript>
+    <StaticWebAssetSourceId>Umbraco.Community.BlockPreview</StaticWebAssetSourceId>
+    <DebugAssetsDirectory>$(MSBuildProjectDirectory)\dist</DebugAssetsDirectory>
+  </PropertyGroup>
 </Project>
