@@ -14,8 +14,6 @@
 		<PackageTags>umbraco plugin package block list grid umbraco-marketplace</PackageTags>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 
-		<IncludeSymbols>true</IncludeSymbols>
-		<SymbolPackageFormats>snupkg</SymbolPackageFormats>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 
 		<VersionPrefix>2.0.0</VersionPrefix>
