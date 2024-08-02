@@ -6,6 +6,7 @@
 		<StaticWebAssetBasePath>App_Plugins</StaticWebAssetBasePath>
 		<ContentTargetFolders>.</ContentTargetFolders>
 
+		<RootNamespace>Umbraco.Community.BlockPreview</RootNamespace>
 		<Product>Umbraco.Community.BlockPreview</Product>
 		<PackageId>Umbraco.Community.BlockPreview</PackageId>
 		<Title>Umbraco.Community.BlockPreview</Title>
@@ -13,11 +14,12 @@
 		<PackageTags>umbraco plugin package block list grid umbraco-marketplace</PackageTags>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 
-		<RootNamespace>Umbraco.Community.BlockPreview</RootNamespace>
-		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+		<IncludeSymbols>true</IncludeSymbols>
+		<SymbolPackageFormats>snupkg</SymbolPackageFormats>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 
 		<VersionPrefix>2.0.0</VersionPrefix>
-		<VersionSuffix></VersionSuffix>
+		<VersionSuffix>alpha001</VersionSuffix>
 		<Authors>Rick Butterfield, Dave Woestenborghs, Matthew Wise</Authors>
 		<Copyright>$([System.DateTime]::UtcNow.ToString(`yyyy`)) © Rick Butterfield</Copyright>
 
@@ -33,7 +35,11 @@
 		<PackageReference Include="Umbraco.Cms.Web.Common" Version="14.2.0--rc.preview.13.gbec0bd6" />
 		<PackageReference Include="Umbraco.Cms.Web.Website" Version="14.2.0--rc.preview.13.gbec0bd6" />
 		<PackageReference Include="Umbraco.Cms.Api.Common" Version="14.2.0--rc.preview.13.gbec0bd6" />
-		<PackageReference Include="Umbraco.Cms.Api.Management" Version="14.2.0--rc.preview.13.gbec0bd6" />	
+		<PackageReference Include="Umbraco.Cms.Api.Management" Version="14.2.0--rc.preview.13.gbec0bd6" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Content Include="buildTransitive\**" PackagePath="buildTransitive" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -45,5 +51,10 @@
 			<Pack>True</Pack>
 			<PackagePath>\</PackagePath>
 		</None>
+		<None Include="appsettings-schema.blockpreview.json" Pack="true" PackagePath="\" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\Umbraco.Community.BlockPreview.UI\Umbraco.Community.BlockPreview.UI.esproj" />
 	</ItemGroup>
 </Project>

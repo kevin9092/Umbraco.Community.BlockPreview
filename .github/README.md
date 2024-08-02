@@ -1,5 +1,5 @@
 # BlockPreview
-[![Platform](https://img.shields.io/badge/Umbraco-10.4+-%233544B1?style=flat&logo=umbraco)](https://umbraco.com/products/umbraco-cms/)
+[![Platform](https://img.shields.io/badge/Umbraco-14.2+-%233544B1?style=flat&logo=umbraco)](https://umbraco.com/products/umbraco-cms/)
 [![NuGet](https://img.shields.io/nuget/v/Umbraco.Community.BlockPreview.svg)](https://www.nuget.org/packages/Umbraco.Community.BlockPreview/)
 [![GitHub](https://img.shields.io/github/license/rickbutterfield/Umbraco.Community.BlockPreview)](https://github.com/rickbutterfield/Umbraco.Community.BlockPreview/blob/develop/LICENSE)
 
@@ -9,51 +9,27 @@
 
 ## Getting started
 ### Installation
-The Umbraco 10.4+ version of this package is [available via NuGet](https://www.nuget.org/packages/Umbraco.Community.BlockPreview).
+The Umbraco v14.2+ version of this package is [available via NuGet](https://www.nuget.org/packages/Umbraco.Community.BlockPreview).
 
 To install the package, you can use either .NET CLI:
 
 ```
-dotnet add package Umbraco.Community.BlockPreview --version 1.8.4
+dotnet add package Umbraco.Community.BlockPreview --version 2.0.0-rc1
 ```
 
 or the older NuGet Package Manager:
 
 ```
-Install-Package Umbraco.Community.BlockPreview -Version 1.8.4
+Install-Package Umbraco.Community.BlockPreview -Version 2.0.0-rc1
 ```
 
 ### Setup
-#### v1.7.0+
-If you are using a version prior to 1.7.0, you will likely have a reference to `AddBlockPreview()` in your `Startup.cs`. This can now be removed!
-
-#### Versions earlier than 1.7.0
-Once installed, you'll need to add `AddBlockPreview()` to your `Startup.cs` file, before `AddWebsite()`.
-```diff
-+ @using Umbraco.Community.BlockPreview;
- 
- public void ConfigureServices(IServiceCollection services)
- {
-     services.AddUmbraco(_env, _config)
-         .AddBackOffice()
-+        .AddBlockPreview()
-         .AddWebsite()
-         .AddComposers()
-         .Build();
- }
-```
-
-### Upgrading
-If you're upgrading from any version before `1.7.0`, you will need to remove the `App_Plugins/Umbraco.Community.BlockPreview` folder.
 
 
 ## Usage
-This package installs a custom Angular preview for both the Block List and Block Grid editors in the backoffice.
+This package installs a custom Web Component preview for both the Block List and Block Grid editors in the backoffice.
 
 When setting up a block to be part of the List or Grid, setting the 'Custom View' property to `block-preview.html` will generate preview HTML based on the respective partial view found in `/Views/Partials/blocklist/Components` or `/Views/Partials/blockgrid/Components` or ViewComponents.
-
-How to select the custom views when creating a Block List/Grid:
-![Screenshot](https://raw.githubusercontent.com/rickbutterfield/Umbraco.Community.BlockPreview/develop/.github/assets/screenshot1.png "The Umbraco backoffice showing a panel titled 'Select view', with a HTML file named `block-preview.html` available for selection")
 
 Before and after of how components look within the Block Grid:
 ![Screenshot2](https://raw.githubusercontent.com/rickbutterfield/Umbraco.Community.BlockPreview/develop/.github/assets/screenshot2.png "Before and after of how components look within the Block Grid")
@@ -113,7 +89,7 @@ This package adds an `IsBlockPreviewRequest()` extension to `HttpContext.Request
 For example:
 ```razor
 @using Umbraco.Community.BlockPreview.Extensions
-@inherits UmbracoViewPage<BlockGridItem>
+@inherits UmbracoViewPage<BlockGridItem<TContent, TSettings>>
 
 @if (Context.Request.IsBlockPreviewRequest())
 {
@@ -137,7 +113,7 @@ If your block partials are not in the usual `/Views/Partials/block[grid|list]/Co
 To raise a new bug, create an issue on the GitHub repository. To fix a bug or add new features, fork the repository and send a pull request with your changes. Feel free to add ideas to the repository's issues list if you would to discuss anything related to the library.
 
 ### Using the test sites
-The repo comes with test sites for both Umbraco 11 and Umbraco 12. Both sites are configured with uSync out of the box to get you up and running with a test site quickly. Use the following credentials to log into the back office:
+The repo comes with a test site for Umbraco 14.2+. The site is configured with uSync out of the box to get you up and running with a test site quickly. Use the following credentials to log into the back office:
 
 ```
 Username: admin@example.com

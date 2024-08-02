@@ -7,7 +7,7 @@ import { UMB_WORKSPACE_CONTEXT } from "@umbraco-cms/backoffice/workspace";
 import { UmbBlockListEntryContext } from "../../node_modules/@umbraco-cms/backoffice/dist-cms/packages/block/block-list/context/block-list-entry.context";
 import { BlockPreviewService } from "../api";
 import { tryExecuteAndNotify } from "@umbraco-cms/backoffice/resources";
-import { UmbBlockEditorCustomViewElement } from "..";
+import { UmbBlockEditorCustomViewElement } from "@umbraco-cms/backoffice/extension-registry";
 
 const elementName = "block-list-preview";
 

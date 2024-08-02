@@ -6,7 +6,7 @@ export default defineConfig({
             entry: "src/index.ts", // your web component source file
             formats: ["es"],
         },
-        outDir: "../wwwroot/Umbraco.Community.BlockPreview", 
+        outDir: "../Umbraco.Community.BlockPreview/wwwroot/App_Plugins/Umbraco.Community.BlockPreview", 
         emptyOutDir: true,
         sourcemap: true,
         rollupOptions: {
