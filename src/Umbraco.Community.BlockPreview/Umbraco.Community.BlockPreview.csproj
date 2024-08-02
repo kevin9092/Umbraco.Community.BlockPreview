@@ -19,7 +19,7 @@
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 
 		<VersionPrefix>2.0.0</VersionPrefix>
-		<VersionSuffix>alpha005</VersionSuffix>
+		<VersionSuffix>alpha006</VersionSuffix>
 		<Authors>Rick Butterfield, Dave Woestenborghs, Matthew Wise</Authors>
 		<Copyright>$([System.DateTime]::UtcNow.ToString(`yyyy`)) © Rick Butterfield</Copyright>
 

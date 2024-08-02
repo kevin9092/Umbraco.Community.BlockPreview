@@ -9,7 +9,7 @@
 	<ItemGroup>
 		<PackageReference Include="Umbraco.Cms" Version="14.1.0" />
 		<PackageReference Include="Umbraco.Cms.Core" Version="14.1.0" />
-		<PackageReference Include="Umbraco.Community.BlockPreview" Version="2.0.0-alpha005" />
+		<PackageReference Include="Umbraco.Community.BlockPreview" Version="2.0.0-alpha006" />
 		<PackageReference Include="uSync" Version="14.0.0" />
 	</ItemGroup>
 
