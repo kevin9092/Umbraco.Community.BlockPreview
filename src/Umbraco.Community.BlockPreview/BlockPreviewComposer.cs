@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Umbraco.Cms.Core.Composing;
 using Umbraco.Cms.Core.DependencyInjection;
 using Umbraco.Cms.Core.Notifications;
+using Umbraco.Community.BlockPreview.Extensions;
 using Umbraco.Community.BlockPreview.Helpers;
 using Umbraco.Community.BlockPreview.Interfaces;
 using Umbraco.Community.BlockPreview.NotificationHandlers;
@@ -16,6 +17,8 @@ namespace Umbraco.Community.BlockPreview
     {
         public void Compose(IUmbracoBuilder builder)
         {
+            builder.AddInternal(config => config.BindConfiguration(Constants.Configuration.AppSettingsRoot));
+
             builder.AddNotificationHandler<ServerVariablesParsingNotification, ServerVariablesParsingNotificationHandler>();
 
             builder.Services.AddScoped<IViewComponentHelperWrapper>(sp =>

@@ -11,7 +11,16 @@ builder.CreateUmbracoBuilder()
     {
         options.BlockGrid = new()
         {
-            Enabled = true
+            Enabled = true,
+            ContentTypes = [],
+            ViewLocations = []
+        };
+
+        options.BlockList = new()
+        {
+            Enabled = false,
+            ContentTypes = [],
+            ViewLocations = []
         };
     })
     .Build();

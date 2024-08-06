@@ -1,17 +1,18 @@
 ﻿using Umbraco.Cms.Core.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.DependencyInjection;
+
 namespace Umbraco.Community.BlockPreview.Extensions
 {
     public static class BlockPreviewUmbracoBuilderExtensions
     {
         public static IUmbracoBuilder AddBlockPreview(this IUmbracoBuilder builder)
-            => builder.AddBlockPreview();
+            => builder.AddInternal();
 
         public static IUmbracoBuilder AddBlockPreview(this IUmbracoBuilder builder, Action<BlockPreviewOptions> configure)
-            => builder.AddBlockPreview(optionsBuilder => optionsBuilder.Configure(configure));
+            => builder.AddInternal(optionsBuilder => optionsBuilder.Configure(configure));
 
-        public static IUmbracoBuilder AddBlockPreview(this IUmbracoBuilder builder,
+        public static IUmbracoBuilder AddInternal(this IUmbracoBuilder builder,
             Action<OptionsBuilder<BlockPreviewOptions>>? configure = null)
         {
             ArgumentNullException.ThrowIfNull(builder);

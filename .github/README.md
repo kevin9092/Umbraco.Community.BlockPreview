@@ -14,22 +14,107 @@ The Umbraco v14.2+ version of this package is [available via NuGet](https://www.
 To install the package, you can use either .NET CLI:
 
 ```
-dotnet add package Umbraco.Community.BlockPreview --version 2.0.0-alpha006
+dotnet add package Umbraco.Community.BlockPreview --version 2.0.0-rc1
 ```
 
 or the older NuGet Package Manager:
 
 ```
-Install-Package Umbraco.Community.BlockPreview -Version 2.0.0-alpha006
+Install-Package Umbraco.Community.BlockPreview -Version 2.0.0-rc1
 ```
 
 ### Setup
+The package can be configured in the `Program.cs` file, before the call to the `.Build()` method:
+```diff
++using Umbraco.Community.BlockPreview.Extensions;
+builder.CreateUmbracoBuilder()
+    .AddBackOffice()
+    .AddWebsite()
+    .AddDeliveryApi()
+    .AddComposers()
++   .AddBlockPreview(options =>
++   {
++       options.BlockGrid = new()
++       {
++           Enabled = true,
++           ContentTypes = [RichTextBlock.ModelTypeAlias]
++       };
++       options.BlockList = new()
++       {
++           Enabled = false
++       };
++   })
+    .Build();
+```
+
+Alternatively, it can be configured in `appsettings.json`:
+```json
+{
+  "BlockPreview": {
+    "BlockGrid": {
+      "Enabled": true,
+      "ContentTypes": ["richTextBlock"]
+    },
+    "BlockList": {
+      "Enabled": false
+    }
+  }
+}
+```
+
+### Options
+The following options can be configured, either in `.AddBlockPreview()` or `appsettings.json`:
+```cs
+builder.AddBlockPreview(options =>
+{
+  options.BlockGrid = new()
+  {
+      Enabled = true,
+      ContentTypes = [],
+      ViewLocations = []
+  };
+
+  options.BlockList = new()
+  {
+      Enabled = true,
+      ContentTypes = [],
+      ViewLocations = []
+  };
+})
+```
+
+```
+{
+  "BlockPreview": {
+    "BlockGrid": {
+      "Enabled": true,
+      "ContentTypes": [ "richTextBlock" ],
+      "ViewLocations": []
+    },
+    "BlockList": {
+      "Enabled": false,
+      "ContentTypes": [],
+      "ViewLocations": []
+    }
+  }
+}
+```
+
+`Enabled` (`boolean`)
+Toggle previews on or off for a given data type.
+
+`ContentTypes` (`string[]|List<string>`)
+A list of content type aliases to enable the previews for. If this is left blank, or set to an empty array or null, all blocks will be enabled.
+
+`ViewLocations` (`string[]|List<string>`)
+A list of custom locations to be searched for your partial views. The default paths of `/Views/Partials/blockgrid/Components` and `/Views/Partials/blocklist/Components` are automatically included.
+
+Both `BlockGrid` and `BlockList` take the same options.
 
 
-## Usage
-This package installs a custom Web Component preview for both the Block List and Block Grid editors in the backoffice.
+### Usage
+This package installs a custom Web Component preview for both the Block List and Block Grid editors in the backoffice. Block Grid and Block List can be configured independently (v14.2+).
 
-When setting up a block to be part of the List or Grid, setting the 'Custom View' property to `block-preview.html` will generate preview HTML based on the respective partial view found in `/Views/Partials/blocklist/Components` or `/Views/Partials/blockgrid/Components` or ViewComponents.
 
 Before and after of how components look within the Block Grid:
 ![Screenshot2](https://raw.githubusercontent.com/rickbutterfield/Umbraco.Community.BlockPreview/develop/.github/assets/screenshot2.png "Before and after of how components look within the Block Grid")
