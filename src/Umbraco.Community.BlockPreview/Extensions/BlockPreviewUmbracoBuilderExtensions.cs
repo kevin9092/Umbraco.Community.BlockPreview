@@ -17,7 +17,7 @@ namespace Umbraco.Community.BlockPreview.Extensions
             ArgumentNullException.ThrowIfNull(builder);
 
             var optionsBuilder = builder.Services.AddOptions<BlockPreviewOptions>()
-                .BindConfiguration(Constants.Configuration.AppPluginsRoot)
+                .BindConfiguration(Constants.Configuration.AppSettingsRoot)
                 .ValidateDataAnnotations();
 
             configure?.Invoke(optionsBuilder);

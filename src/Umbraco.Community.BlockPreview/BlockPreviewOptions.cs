@@ -16,8 +16,8 @@
 
     public class BlockTypeSettings
     {
-        public bool Enabled { get; set; }
-        public string[]? ViewLocations { get; set; }
-        public string[]? ContentTypes { get; set; }
+        public bool Enabled { get; set; } = false;
+        public string[]? ViewLocations { get; set; } = [];
+        public string[]? ContentTypes { get; set; } = [];
     }
 }
