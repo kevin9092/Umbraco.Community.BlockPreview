@@ -1,8 +1,6 @@
 ﻿using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using Umbraco.Cms.Core.Models.Blocks;
 using Umbraco.Extensions;
 
@@ -10,7 +8,8 @@ namespace Umbraco.Community.BlockPreview.Extensions
 {
     public static class BlockGridPreviewTemplateExtensions
     {
-        private static readonly string AREA_TEMPLATE = "<umb-block-grid-render-area-slots></umb-block-grid-render-area-slots><button ng-click=\"vm.blockEditorApi.requestShowCreate(vm.parentBlock, vm.areaKey, vm.entries.length, $event)\">Add content</button>";
+        private static readonly string AREA_TEMPLATE =
+            "<umb-block-grid-render-area-slots></umb-block-grid-render-area-slots>";
 
         public static async Task<IHtmlContent> GetPreviewBlockGridItemAreasHtmlAsync(this IHtmlHelper html, BlockGridItem item, string template = BlockGridTemplateExtensions.DefaultItemAreasTemplate)
         {
