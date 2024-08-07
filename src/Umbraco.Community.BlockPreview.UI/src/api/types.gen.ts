@@ -76,6 +76,7 @@ export type AvailableMemberTypeCompositionResponseModel = {
 export type BlockPreviewOptions = {
     blockGrid: BlockTypeSettings;
     blockList: BlockTypeSettings;
+    richText: BlockTypeSettings;
 };
 
 export type BlockTypeSettings = {
@@ -449,6 +450,9 @@ export type CultureReponseModel = {
 
 export type CurrenUserConfigurationResponseModel = {
     keepUserLoggedIn: boolean;
+    /**
+     * @deprecated
+     */
     usernameIsEmail: boolean;
     passwordConfiguration: PasswordConfigurationResponseModel;
 };
@@ -644,6 +648,9 @@ export type DocumentConfigurationResponseModel = {
     disableUnpublishWhenReferenced: boolean;
     allowEditInvariantFromNonDefault: boolean;
     allowNonExistingSegmentsCreation: boolean;
+    /**
+     * @deprecated
+     */
     reservedFieldNames: Array<(string)>;
 };
 
@@ -741,6 +748,7 @@ export type DocumentTypeConfigurationResponseModel = {
     dataTypesCanBeChanged: DataTypeChangeModeModel;
     disableTemplates: boolean;
     useSegments: boolean;
+    reservedFieldNames: Array<(string)>;
 };
 
 export type DocumentTypeItemResponseModel = {
@@ -1164,6 +1172,9 @@ export type MediaCollectionResponseModel = {
 export type MediaConfigurationResponseModel = {
     disableDeleteWhenReferenced: boolean;
     disableUnpublishWhenReferenced: boolean;
+    /**
+     * @deprecated
+     */
     reservedFieldNames: Array<(string)>;
 };
 
@@ -1228,6 +1239,10 @@ export type MediaTypeCompositionResponseModel = {
     id: string;
     name: string;
     icon: string;
+};
+
+export type MediaTypeConfigurationResponseModel = {
+    reservedFieldNames: Array<(string)>;
 };
 
 export type MediaTypeItemResponseModel = {
@@ -1330,6 +1345,9 @@ export type MediaVariantResponseModel = {
 };
 
 export type MemberConfigurationResponseModel = {
+    /**
+     * @deprecated
+     */
     reservedFieldNames: Array<(string)>;
 };
 
@@ -1381,6 +1399,10 @@ export type MemberTypeCompositionResponseModel = {
     id: string;
     name: string;
     icon: string;
+};
+
+export type MemberTypeConfigurationResponseModel = {
+    reservedFieldNames: Array<(string)>;
 };
 
 export type MemberTypeItemResponseModel = {
@@ -2608,6 +2630,7 @@ export type UpgradeSettingsResponseModel = {
 
 export type UserConfigurationResponseModel = {
     canInviteUsers: boolean;
+    usernameIsEmail: boolean;
     passwordConfiguration: PasswordConfigurationResponseModel;
 };
 
@@ -2794,25 +2817,34 @@ export type WebhookResponseModel = {
     events: Array<(WebhookEventResponseModel)>;
 };
 
-export type PostUmbracoManagementApiV1BlockPreviewPreviewGridData = {
+export type PreviewGridMarkupData = {
     blockEditorAlias?: string;
     culture?: string;
     pageKey?: string;
     requestBody?: string;
 };
 
-export type PostUmbracoManagementApiV1BlockPreviewPreviewGridResponse = string;
+export type PreviewGridMarkupResponse = string;
 
-export type PostUmbracoManagementApiV1BlockPreviewPreviewListData = {
+export type PreviewListMarkupData = {
     blockEditorAlias?: string;
     culture?: string;
     pageKey?: string;
     requestBody?: string;
 };
 
-export type PostUmbracoManagementApiV1BlockPreviewPreviewListResponse = string;
+export type PreviewListMarkupResponse = string;
 
-export type GetUmbracoManagementApiV1BlockPreviewSettingsResponse = BlockPreviewOptions;
+export type PreviewRichTextMarkupData = {
+    blockEditorAlias?: string;
+    culture?: string;
+    pageKey?: string;
+    requestBody?: string;
+};
+
+export type PreviewRichTextMarkupResponse = string;
+
+export type GetSettingsResponse = BlockPreviewOptions;
 
 export type GetCultureData = {
     skip?: number;
@@ -3881,6 +3913,8 @@ export type PostMediaTypeAvailableCompositionsData = {
 
 export type PostMediaTypeAvailableCompositionsResponse = Array<(AvailableMediaTypeCompositionResponseModel)>;
 
+export type GetMediaTypeConfigurationResponse = MediaTypeConfigurationResponseModel;
+
 export type PostMediaTypeFolderData = {
     requestBody?: CreateFolderRequestModel;
 };
@@ -4220,6 +4254,8 @@ export type PostMemberTypeAvailableCompositionsData = {
 };
 
 export type PostMemberTypeAvailableCompositionsResponse = Array<(AvailableMemberTypeCompositionResponseModel)>;
+
+export type GetMemberTypeConfigurationResponse = MemberTypeConfigurationResponseModel;
 
 export type GetTreeMemberTypeRootData = {
     skip?: number;
@@ -5248,7 +5284,7 @@ export type GetWebhookEventsResponse = PagedWebhookEventModel;
 export type $OpenApiTs = {
     '/umbraco/management/api/v1/block-preview/preview/grid': {
         post: {
-            req: PostUmbracoManagementApiV1BlockPreviewPreviewGridData;
+            req: PreviewGridMarkupData;
             res: {
                 /**
                  * OK
@@ -5267,7 +5303,26 @@ export type $OpenApiTs = {
     };
     '/umbraco/management/api/v1/block-preview/preview/list': {
         post: {
-            req: PostUmbracoManagementApiV1BlockPreviewPreviewListData;
+            req: PreviewListMarkupData;
+            res: {
+                /**
+                 * OK
+                 */
+                200: string;
+                /**
+                 * The resource is protected and requires an authentication token
+                 */
+                401: unknown;
+                /**
+                 * The authenticated user do not have access to this resource
+                 */
+                403: string;
+            };
+        };
+    };
+    '/umbraco/management/api/v1/block-preview/preview/rte': {
+        post: {
+            req: PreviewRichTextMarkupData;
             res: {
                 /**
                  * OK
@@ -8867,6 +8922,24 @@ export type $OpenApiTs = {
             };
         };
     };
+    '/umbraco/management/api/v1/media-type/configuration': {
+        get: {
+            res: {
+                /**
+                 * OK
+                 */
+                200: MediaTypeConfigurationResponseModel;
+                /**
+                 * The resource is protected and requires an authentication token
+                 */
+                401: unknown;
+                /**
+                 * The authenticated user do not have access to this resource
+                 */
+                403: unknown;
+            };
+        };
+    };
     '/umbraco/management/api/v1/media-type/folder': {
         post: {
             req: PostMediaTypeFolderData;
@@ -9993,6 +10066,24 @@ export type $OpenApiTs = {
                  * The authenticated user do not have access to this resource
                  */
                 403: string;
+            };
+        };
+    };
+    '/umbraco/management/api/v1/member-type/configuration': {
+        get: {
+            res: {
+                /**
+                 * OK
+                 */
+                200: MemberTypeConfigurationResponseModel;
+                /**
+                 * The resource is protected and requires an authentication token
+                 */
+                401: unknown;
+                /**
+                 * The authenticated user do not have access to this resource
+                 */
+                403: unknown;
             };
         };
     };

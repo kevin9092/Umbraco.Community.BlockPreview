@@ -19,6 +19,17 @@ namespace Umbraco.Community.BlockPreview.Extensions
 
             var optionsBuilder = builder.Services.AddOptions<BlockPreviewOptions>()
                 .BindConfiguration(Constants.Configuration.AppSettingsRoot)
+                .PostConfigure(x =>
+                {
+                    if (x.BlockGrid?.ViewLocations != null)
+                        x.BlockGrid.ViewLocations.Add(Constants.DefaultViewLocations.BlockGrid);
+
+                    if (x.BlockList?.ViewLocations != null)
+                        x.BlockList.ViewLocations.Add(Constants.DefaultViewLocations.BlockList);
+
+                    if (x.RichText?.ViewLocations != null)
+                        x.RichText.ViewLocations.Add(Constants.DefaultViewLocations.RichText);
+                })
                 .ValidateDataAnnotations();
 
             configure?.Invoke(optionsBuilder);

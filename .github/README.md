@@ -14,13 +14,13 @@ The Umbraco v14.2+ version of this package is [available via NuGet](https://www.
 To install the package, you can use either .NET CLI:
 
 ```
-dotnet add package Umbraco.Community.BlockPreview --version 2.0.0-rc1
+dotnet add package Umbraco.Community.BlockPreview --version 2.0.0-rc2
 ```
 
 or the older NuGet Package Manager:
 
 ```
-Install-Package Umbraco.Community.BlockPreview -Version 2.0.0-rc1
+Install-Package Umbraco.Community.BlockPreview -Version 2.0.0-rc2
 ```
 
 ### Setup

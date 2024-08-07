@@ -6,6 +6,7 @@
         {
             public static string BlockGrid => "/Views/Partials/blockgrid/Components/{0}.cshtml";
             public static string BlockList => "/Views/Partials/blocklist/Components/{0}.cshtml";
+            public static string RichText => "/Views/Partials/richtext/Components/{0}.cshtml";
         }
 
         public static partial class Configuration

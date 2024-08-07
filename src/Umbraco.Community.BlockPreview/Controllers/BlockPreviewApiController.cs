@@ -12,8 +12,8 @@ using Umbraco.Cms.Api.Management.Routing;
 using Umbraco.Cms.Core.Services;
 using Asp.Versioning;
 using Microsoft.Extensions.Options;
-using Umbraco.Cms.Core.Models.Blocks;
 using Microsoft.AspNetCore.Authorization;
+using Umbraco.Cms.Core.Strings;
 
 namespace Umbraco.Community.BlockPreview.Controllers
 {
@@ -30,6 +30,7 @@ namespace Umbraco.Community.BlockPreview.Controllers
         private readonly ContextCultureService _contextCultureService;
         private readonly IBackOfficeListPreviewService _backOfficeListPreviewService;
         private readonly IBackOfficeGridPreviewService _backOfficeGridPreviewService;
+        private readonly IBackOfficeRtePreviewService _backOfficeRtePreviewService;
         private readonly ILanguageService _languageService;
         private readonly ISiteDomainMapper _siteDomainMapper;
         private readonly BlockPreviewOptions _blockPreviewSettings;
@@ -44,6 +45,7 @@ namespace Umbraco.Community.BlockPreview.Controllers
             ContextCultureService contextCultureSwitcher,
             IBackOfficeListPreviewService backOfficeListPreviewService,
             IBackOfficeGridPreviewService backOfficeGridPreviewService,
+            IBackOfficeRtePreviewService backOfficeRtePreviewService,
             ILanguageService languageService,
             ISiteDomainMapper siteDomainMapper,
             IOptionsMonitor<BlockPreviewOptions> blockPreviewSettings)
@@ -54,6 +56,7 @@ namespace Umbraco.Community.BlockPreview.Controllers
             _contextCultureService = contextCultureSwitcher;
             _backOfficeListPreviewService = backOfficeListPreviewService;
             _backOfficeGridPreviewService = backOfficeGridPreviewService;
+            _backOfficeRtePreviewService = backOfficeRtePreviewService;
             _languageService = languageService;
             _siteDomainMapper = siteDomainMapper;
             _blockPreviewSettings = blockPreviewSettings.CurrentValue;
@@ -158,6 +161,55 @@ namespace Umbraco.Community.BlockPreview.Controllers
         }
 
         /// <summary>
+        /// Renders a preview for a list block using the associated Razor view or ViewComponent.
+        /// </summary>
+        /// <param name="data">The JSON content data of the block.</param>
+        /// <param name="pageId">The current page id.</param>
+        /// <param name="blockEditorAlias">The alias of the block editor</param>
+        /// <param name="culture">The culture</param>
+        /// <returns>The markup to render in the preview.</returns>
+        [HttpPost("preview/rte")]
+        [ProducesResponseType(typeof(string), 200)]
+        public async Task<IActionResult> PreviewRichTextMarkup(
+            [FromBody] string blockData,
+            [FromQuery] Guid pageKey = default(Guid),
+            [FromQuery] string blockEditorAlias = "",
+            [FromQuery] string culture = "")
+        {
+            string markup;
+
+            try
+            {
+                IPublishedContent? page = null;
+
+                // If the page is new, then the ID will be zero
+                if (pageKey != Guid.Empty)
+                {
+                    page = GetPublishedContentForPage(pageKey);
+                }
+
+                if (page == null)
+                {
+                    return Ok("<div class=\"preview-alert preview-alert-warning\"><strong>Cannot create a preview:</strong> the page must be saved before a preview can be created</div>");
+                }
+
+                string? currentCulture = await GetCurrentCulture(page, culture);
+
+                await SetupPublishedRequest(page, currentCulture);
+
+                markup = await _backOfficeRtePreviewService.GetMarkupForBlock(page, blockData, blockEditorAlias, ControllerContext, culture);
+            }
+            catch (Exception ex)
+            {
+                markup = $"<div class=\"alert alert-error\"><strong>Something went wrong rendering a preview.</strong><br/><pre>{ex.Message}</pre></div>";
+                _logger.LogError(ex, $"Error rendering preview for block {blockEditorAlias}");
+            }
+
+            string? cleanMarkup = CleanUpMarkup(markup);
+            return Ok(cleanMarkup);
+        }
+
+        /// <summary>
         /// Loads the in-memory settings from appsettings.json
         /// </summary>
         /// <returns><see cref="BlockPreviewOptions">Block Preview settings</see></returns>
@@ -169,7 +221,7 @@ namespace Umbraco.Community.BlockPreview.Controllers
             return _blockPreviewSettings;
         }
 
-        private async Task<string?> GetCurrentCulture(IPublishedContent page, string culture)
+        private async Task<string?> GetCurrentCulture(IPublishedContent page, string? culture)
         {
             // if in a culture variant setup also set the correct language.
             var currentCulture = string.IsNullOrWhiteSpace(culture)

@@ -11,7 +11,7 @@ namespace Umbraco.Community.BlockPreview.Interfaces
         void ConvertNestedValuesToString(BlockItemData? contentData);
         Type? FindBlockType(string? contentTypeAlias);
         ViewDataDictionary CreateViewData(object? typedBlockInstance);
-        Task<string> GetMarkup(ControllerContext controllerContext, string contentAlias, ViewDataDictionary viewData, bool isGrid = false);
+        Task<string> GetMarkup(ControllerContext controllerContext, string contentAlias, ViewDataDictionary viewData);
         Task<string> GetMarkupForBlock(IPublishedContent page, string blockData, string blockEditorAlias, ControllerContext controllerContext, string? culture);
         Task<string> GetMarkupFromViewComponent(ControllerContext controllerContext, ViewDataDictionary viewData, ViewComponentDescriptor viewComponent);
     }

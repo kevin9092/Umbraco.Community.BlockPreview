@@ -1,9 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewComponents;
 using Microsoft.Extensions.DependencyInjection;
+using Umbraco.Cms.Api.Common.OpenApi;
 using Umbraco.Cms.Core.Composing;
 using Umbraco.Cms.Core.DependencyInjection;
 using Umbraco.Cms.Core.Notifications;
+using Umbraco.Community.BlockPreview.Configuration;
 using Umbraco.Community.BlockPreview.Extensions;
 using Umbraco.Community.BlockPreview.Helpers;
 using Umbraco.Community.BlockPreview.Interfaces;
@@ -31,9 +33,12 @@ namespace Umbraco.Community.BlockPreview
                 throw new InvalidOperationException($"Expected {nameof(DefaultViewComponentHelper)} when resolving {nameof(IViewComponentHelperWrapper)}");
             });
 
+            builder.Services.AddSingleton<IOperationIdHandler, BlockPreviewCustomOperationIdHandler>();
+
             builder.Services.AddScoped<IBackOfficePreviewService, BackOfficeListPreviewService>();
             builder.Services.AddScoped<IBackOfficeListPreviewService, BackOfficeListPreviewService>();
             builder.Services.AddScoped<IBackOfficeGridPreviewService, BackOfficeGridPreviewService>();
+            builder.Services.AddScoped<IBackOfficeRtePreviewService, BackOfficeRtePreviewService>();
             builder.Services.AddScoped<ContextCultureService>();
 
             builder.Services.ConfigureOptions<BlockViewEngineOptionsSetup>();
