@@ -1,8 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.Extensions.Options;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Umbraco.Community.BlockPreview.ViewEngines
 {
@@ -18,13 +15,10 @@ namespace Umbraco.Community.BlockPreview.ViewEngines
             _options = options.Value;
         }
 
-
         public void Configure(RazorViewEngineOptions options)
         {
             if (options == null)
-            {
                 throw new ArgumentNullException(nameof(options));
-            }
 
             options.ViewLocationExpanders.Add(new BlockViewLocationExpander(_options));
         }
@@ -39,9 +33,11 @@ namespace Umbraco.Community.BlockPreview.ViewEngines
             }
 
             public IEnumerable<string> ExpandViewLocations(
-                ViewLocationExpanderContext context, IEnumerable<string> viewLocations)
+                ViewLocationExpanderContext context,
+                IEnumerable<string> viewLocations)
             {
-                return _options.ViewLocations.GetAll().Concat(viewLocations);
+                var customViewLocations = _options.GetAllViewLocations();
+                return viewLocations.Concat(customViewLocations!);
             }
 
             // not a dynamic expander

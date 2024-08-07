@@ -16,6 +16,7 @@ namespace Umbraco.Community.BlockPreview.Extensions
                 {
                     x.ViewLocations.BlockGrid.Add(Constants.DefaultViewLocations.BlockGrid);
                     x.ViewLocations.BlockList.Add(Constants.DefaultViewLocations.BlockList);
+                    x.ViewLocations.RichText.Add(Constants.DefaultViewLocations.RichText);
                 })
                 .ValidateDataAnnotations()
                 .ValidateOnStart();

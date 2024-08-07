@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿#if NET8_0
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.AspNetCore.Mvc.ViewComponents;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
@@ -11,11 +12,11 @@ using Umbraco.Community.BlockPreview.Interfaces;
 
 namespace Umbraco.Community.BlockPreview.Services
 {
-    public sealed class BackOfficeListPreviewService : BackOfficePreviewServiceBase, IBackOfficeListPreviewService
+    public sealed class BackOfficeRtePreviewService : BackOfficePreviewServiceBase, IBackOfficeRtePreviewService
     {
         private readonly ContextCultureService _contextCultureService;
 
-        public BackOfficeListPreviewService(
+        public BackOfficeRtePreviewService(
             BlockEditorConverter blockEditorConverter,
             ContextCultureService contextCultureService,
             ITempDataProvider tempDataProvider,
@@ -57,9 +58,9 @@ namespace Umbraco.Community.BlockPreview.Services
                 Type? contentBlockType = FindBlockType(contentTypeAlias);
                 Type? settingsBlockType = settingsElement != null ? FindBlockType(settingsTypeAlias) : default;
 
-                object? blockInstance = CreateBlockInstance(false, false, contentBlockType, contentElement, settingsBlockType, settingsElement, contentData.Udi, settingsData?.Udi);
+                object? blockInstance = CreateBlockInstance(isGrid: false, isRte: true, contentBlockType, contentElement, settingsBlockType, settingsElement, contentData.Udi, settingsData?.Udi);
 
-                BlockListItem? typedBlockInstance = blockInstance as BlockListItem;
+                RichTextBlockItem? typedBlockInstance = blockInstance as RichTextBlockItem;
 
                 ViewDataDictionary? viewData = CreateViewData(typedBlockInstance);
 
@@ -70,3 +71,4 @@ namespace Umbraco.Community.BlockPreview.Services
         }
     }
 }
+#endif

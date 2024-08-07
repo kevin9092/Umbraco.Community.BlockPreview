@@ -11,11 +11,13 @@
 
         return resource;
 
-        function getPreview(data, pageId, blockEditorAlias, isGrid, culture) {
+        function getPreview(data, pageId, blockEditorAlias, isGrid, isRte, culture) {
             culture = culture || '';
+            isGrid = isGrid || false;
+            isRte = isRte || false
 
             return umbRequestHelper.resourcePromise(
-                $http.post(`${apiUrl}?pageId=${pageId}&blockEditorAlias=${blockEditorAlias}&isGrid=${isGrid}&culture=${culture}`, data),
+                $http.post(`${apiUrl}?pageId=${pageId}&blockEditorAlias=${blockEditorAlias}&isGrid=${isGrid}&isRte=${isRte}&culture=${culture}`, data),
                 'Failed getting block preview markup'
             );
         };

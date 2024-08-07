@@ -5,6 +5,15 @@
     <Nullable>enable</Nullable>
     <RootNamespace>Umbraco.Cms._13.x</RootNamespace>
   </PropertyGroup>
+  <ItemGroup>
+    <Content Remove="appsettings-schema.blockpreview.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="appsettings-schema.blockpreview.json">
+      <PackagePath>\</PackagePath>
+      <Pack>true</Pack>
+    </None>
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Umbraco.BlockGrid.Example.Website" Version="1.0.2" />

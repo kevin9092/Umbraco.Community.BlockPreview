@@ -95,7 +95,7 @@ namespace Umbraco.Community.BlockPreview.Services
             return viewData;
         }
 
-        public virtual object? CreateBlockInstance(bool isGrid, Type? contentBlockType, IPublishedElement? contentElement, Type? settingsBlockType, IPublishedElement? settingsElement, Udi? contentUdi, Udi? settingsUdi)
+        public virtual object? CreateBlockInstance(bool isGrid, bool isRte, Type? contentBlockType, IPublishedElement? contentElement, Type? settingsBlockType, IPublishedElement? settingsElement, Udi? contentUdi, Udi? settingsUdi)
         {
             if (contentBlockType != null)
             {
@@ -105,15 +105,37 @@ namespace Umbraco.Community.BlockPreview.Services
                 Type blockItemType;
                 if (settingsBlockType != null)
                 {
-                    blockItemType = isGrid
-                        ? typeof(BlockGridItem<,>).MakeGenericType(contentBlockType, settingsBlockType)
-                        : typeof(BlockListItem<,>).MakeGenericType(contentBlockType, settingsBlockType);
+                    if (isGrid)
+                    {
+                        blockItemType = typeof(BlockGridItem<,>).MakeGenericType(contentBlockType, settingsBlockType);
+                    }
+#if NET8_0
+                    else if (isRte)
+                    {
+                        blockItemType = typeof(RichTextBlockItem<,>).MakeGenericType(contentBlockType, settingsBlockType);
+                    }
+#endif
+                    else
+                    {
+                        blockItemType = typeof(BlockListItem<,>).MakeGenericType(contentBlockType, settingsBlockType);
+                    }
                 }
                 else
                 {
-                    blockItemType = isGrid
-                        ? typeof(BlockGridItem<>).MakeGenericType(contentBlockType)
-                        : typeof(BlockListItem<>).MakeGenericType(contentBlockType);
+                    if (isGrid)
+                    {
+                        blockItemType = typeof(BlockGridItem<>).MakeGenericType(contentBlockType);
+                    }
+#if NET8_0
+                    else if (isRte)
+                    {
+                        blockItemType = typeof(RichTextBlockItem<>).MakeGenericType(contentBlockType);
+                    }
+#endif
+                    else
+                    {
+                        blockItemType = typeof(BlockListItem<>).MakeGenericType(contentBlockType);
+                    }
                 }
 
                 return Activator.CreateInstance(blockItemType, contentUdi, contentInstance, settingsUdi, settingsInstance);
@@ -135,42 +157,37 @@ namespace Umbraco.Community.BlockPreview.Services
             ControllerContext controllerContext,
             ViewDataDictionary? viewData,
             string? contentAlias,
-            bool isGrid = false)
+            bool isGrid = false,
+            bool isRte = false)
         {
-            List<string> viewPaths = isGrid ? _options.ViewLocations.BlockGrid : _options.ViewLocations.BlockList;
+            var viewResult = FindViewResult(contentAlias);
 
-            foreach (var viewPath in viewPaths)
+            if (viewResult == null)
             {
-                string formattedViewPath = string.Format($"~{viewPath}", contentAlias);
-                ViewEngineResult viewResult = _razorViewEngine.GetView("", formattedViewPath, false);
+                viewResult =
+                    _razorViewEngine.FindView(controllerContext, contentAlias!, false) ??
+                    _razorViewEngine.FindView(controllerContext, contentAlias?.ToPascalCase()!, false);
 
                 if (!viewResult.Success)
-                {
-                    formattedViewPath = string.Format($"~{viewPath}", contentAlias?.ToPascalCase());
-                    viewResult = _razorViewEngine.GetView("", formattedViewPath, false);
-
-                    if (!viewResult.Success)
-                        continue;
-                }
-
-                var actionContext = new ActionContext(controllerContext.HttpContext, new RouteData(), new ActionDescriptor());
-                if (viewResult?.View == null)
-                    continue;
-
-                await using var sw = new StringWriter();
-
-                if (viewData != null)
-                {
-                    var viewContext = new ViewContext(actionContext, viewResult.View, viewData,
-                        new TempDataDictionary(actionContext.HttpContext, _tempDataProvider), sw, new HtmlHelperOptions());
-
-                    await viewResult.View.RenderAsync(viewContext);
-                }
-
-                return sw.ToString();
+                    return string.Empty;
             }
 
-            return string.Empty;
+            var actionContext = new ActionContext(controllerContext.HttpContext, new RouteData(), new ActionDescriptor());
+
+            if (viewResult.View == null)
+                return string.Empty;
+
+            await using var sw = new StringWriter();
+
+            if (viewData != null)
+            {
+                var viewContext = new ViewContext(actionContext, viewResult.View, viewData,
+                    new TempDataDictionary(actionContext.HttpContext, _tempDataProvider), sw, new HtmlHelperOptions());
+
+                await viewResult.View.RenderAsync(viewContext);
+            }
+
+            return sw.ToString();
         }
 
         public virtual async Task<string> GetMarkupFromViewComponent(
@@ -202,6 +219,30 @@ namespace Umbraco.Community.BlockPreview.Services
             string? culture)
         {
             return await Task.FromResult<string>(string.Empty);
+        }
+
+        private ViewEngineResult? FindViewResult(string? contentAlias)
+        {
+            var viewPaths = _options.GetAllViewLocations();
+
+            if (viewPaths == null || !viewPaths.Any())
+                return null;
+
+            foreach (var viewPath in viewPaths)
+            {
+                var formattedViewPath = $"~{viewPath}";
+                var viewResult = _razorViewEngine.GetView("", string.Format(formattedViewPath, contentAlias), false);
+
+                if (viewResult.Success)
+                    return viewResult;
+
+                viewResult = _razorViewEngine.GetView("", string.Format(formattedViewPath, contentAlias?.ToPascalCase()), false);
+
+                if (viewResult.Success)
+                    return viewResult;
+            }
+
+            return null;
         }
 
         private sealed class FakeView : IView

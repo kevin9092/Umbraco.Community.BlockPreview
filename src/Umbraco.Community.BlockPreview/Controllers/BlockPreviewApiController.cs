@@ -28,6 +28,7 @@ namespace Umbraco.Community.BlockPreview.Controllers
         private readonly ContextCultureService _contextCultureService;
         private readonly IBackOfficeListPreviewService _backOfficeListPreviewService;
         private readonly IBackOfficeGridPreviewService _backOfficeGridPreviewService;
+        private readonly IBackOfficeRtePreviewService _backOfficeRtePreviewService;
         private readonly ILocalizationService _localizationService;
         private readonly ISiteDomainMapper _siteDomainMapper;
 
@@ -41,6 +42,7 @@ namespace Umbraco.Community.BlockPreview.Controllers
             ContextCultureService contextCultureSwitcher,
             IBackOfficeListPreviewService backOfficeListPreviewService,
             IBackOfficeGridPreviewService backOfficeGridPreviewService,
+            IBackOfficeRtePreviewService backOfficeRtePreviewService,
             ILocalizationService localizationService,
             ISiteDomainMapper siteDomainMapper)
         {
@@ -50,6 +52,7 @@ namespace Umbraco.Community.BlockPreview.Controllers
             _contextCultureService = contextCultureSwitcher;
             _backOfficeListPreviewService = backOfficeListPreviewService;
             _backOfficeGridPreviewService = backOfficeGridPreviewService;
+            _backOfficeRtePreviewService = backOfficeRtePreviewService;
             _localizationService = localizationService;
             _siteDomainMapper = siteDomainMapper;
         }
@@ -68,6 +71,7 @@ namespace Umbraco.Community.BlockPreview.Controllers
             [FromQuery] int pageId = 0,
             [FromQuery] string blockEditorAlias = "",
             [FromQuery] bool isGrid = false,
+            [FromQuery] bool isRte = false,
             [FromQuery] string culture = "")
         {
             string markup;
@@ -91,9 +95,18 @@ namespace Umbraco.Community.BlockPreview.Controllers
 
                 await SetupPublishedRequest(page, currentCulture);
 
-                markup = isGrid ?
-                    await _backOfficeGridPreviewService.GetMarkupForBlock(page, data, blockEditorAlias, ControllerContext, currentCulture) :
-                    await _backOfficeListPreviewService.GetMarkupForBlock(page, data, blockEditorAlias, ControllerContext, currentCulture);
+                if (isGrid)
+                {
+                    markup = await _backOfficeGridPreviewService.GetMarkupForBlock(page, data, blockEditorAlias, ControllerContext, currentCulture);
+                }
+                else if (isRte)
+                {
+                    markup = await _backOfficeRtePreviewService.GetMarkupForBlock(page, data, blockEditorAlias, ControllerContext, currentCulture);
+                }
+                else
+                {
+                    markup = await _backOfficeListPreviewService.GetMarkupForBlock(page, data, blockEditorAlias, ControllerContext, currentCulture);
+                }
             }
             catch (Exception ex)
             {

@@ -10,7 +10,7 @@ namespace Umbraco.Community.BlockPreview.Extensions
 {
     public static class BlockGridPreviewTemplateExtensions
     {
-        private static readonly string AREA_TEMPLATE = "<umb-block-grid-render-area-slots></umb-block-grid-render-area-slots>";
+        private static readonly string AREA_TEMPLATE = "<umb-block-grid-render-area-slots></umb-block-grid-render-area-slots><button ng-click=\"vm.blockEditorApi.requestShowCreate(vm.parentBlock, vm.areaKey, vm.entries.length, $event)\">Add content</button>";
 
         public static async Task<IHtmlContent> GetPreviewBlockGridItemAreasHtmlAsync(this IHtmlHelper html, BlockGridItem item, string template = BlockGridTemplateExtensions.DefaultItemAreasTemplate)
         {

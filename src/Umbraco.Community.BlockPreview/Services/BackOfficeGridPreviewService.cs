@@ -58,7 +58,7 @@ namespace Umbraco.Community.BlockPreview.Services
                 Type? contentBlockType = FindBlockType(contentTypeAlias);
                 Type? settingsBlockType = settingsElement != null ? FindBlockType(settingsTypeAlias) : default;
 
-                object? blockInstance = CreateBlockInstance(true, contentBlockType, contentElement, settingsBlockType, settingsElement, contentData.Udi, settingsData?.Udi);
+                object? blockInstance = CreateBlockInstance(true, false, contentBlockType, contentElement, settingsBlockType, settingsElement, contentData.Udi, settingsData?.Udi);
 
                 BlockGridItem? typedBlockInstance = blockInstance as BlockGridItem;
 

@@ -3,9 +3,10 @@
 		<TargetFrameworks>net6.0;net7.0;net8.0</TargetFrameworks>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
-		<StaticWebAssetBasePath>App_Plugins</StaticWebAssetBasePath>
+		<StaticWebAssetBasePath>/</StaticWebAssetBasePath>
 		<ContentTargetFolders>.</ContentTargetFolders>
 
+		<RootNamespace>Umbraco.Community.BlockPreview</RootNamespace>
 		<Product>Umbraco.Community.BlockPreview</Product>
 		<PackageId>Umbraco.Community.BlockPreview</PackageId>
 		<Title>Umbraco.Community.BlockPreview</Title>
@@ -13,10 +14,9 @@
 		<PackageTags>umbraco plugin package block list grid umbraco-marketplace</PackageTags>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 
-		<RootNamespace>Umbraco.Community.BlockPreview</RootNamespace>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 
-		<VersionPrefix>1.8.4</VersionPrefix>
+		<VersionPrefix>1.9.0</VersionPrefix>
 		<VersionSuffix></VersionSuffix>
 		<Authors>Rick Butterfield, Dave Woestenborghs, Matthew Wise</Authors>
 		<Copyright>$([System.DateTime]::UtcNow.ToString(`yyyy`)) © Rick Butterfield</Copyright>
@@ -48,6 +48,10 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<Content Include="buildTransitive\**" PackagePath="buildTransitive" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<None Include="..\..\.github\assets\icon.png">
 			<Pack>True</Pack>
 			<PackagePath>\</PackagePath>
@@ -56,5 +60,6 @@
 			<Pack>True</Pack>
 			<PackagePath>\</PackagePath>
 		</None>
+		<None Include="appsettings-schema.blockpreview.json" Pack="true" PackagePath="\" />
 	</ItemGroup>
 </Project>

@@ -35,6 +35,9 @@ namespace Umbraco.Community.BlockPreview
             builder.Services.AddScoped<IBackOfficePreviewService, BackOfficeListPreviewService>();
             builder.Services.AddScoped<IBackOfficeListPreviewService, BackOfficeListPreviewService>();
             builder.Services.AddScoped<IBackOfficeGridPreviewService, BackOfficeGridPreviewService>();
+#if NET8_0
+            builder.Services.AddScoped<IBackOfficeRtePreviewService, BackOfficeRtePreviewService>();
+#endif
             builder.Services.AddScoped<ContextCultureService>();
 
             builder.Services.ConfigureOptions<BlockViewEngineOptionsSetup>();

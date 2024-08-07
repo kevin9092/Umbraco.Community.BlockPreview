@@ -16,16 +16,27 @@
 
             $scope.id = current.id;
             $scope.loading = true;
-            $scope.markup = '<div class="preview-alert preview-alert-info">Loading preview</div>';
+            $scope.markup = $sce.trustAsHtml('<div class="preview-alert preview-alert-info">Loading preview</div>');
 
             // There must be a better way to do this...
             $scope.blockEditorAlias = '';
             var parent = $scope.$parent;
 
+            $scope.isGrid = false;
+            $scope.isRte = false;
+
             while (parent.$parent) {
                 if (parent.vm) {
                     if (parent.vm.constructor.name == 'BlockGridController') {
                         $scope.blockEditorAlias = parent.vm.model.editor;
+                        $scope.isGrid = true;
+                        break;
+                    }
+                }
+
+                if (parent.model) {
+                    if (parent.model.constructor.name == 'umbRteBlockController') {
+                        $scope.isRte = true;
                         break;
                     }
                 }
@@ -43,7 +54,7 @@
                     settingsData: [settings || $scope.block.settingsData]
                 };
 
-                previewResource.getPreview(formattedBlockData, $scope.id, $scope.blockEditorAlias, $scope.model.constructor.name == 'BlockGridBlockController', $scope.language).then(function (data) {
+                previewResource.getPreview(formattedBlockData, $scope.id, $scope.blockEditorAlias, $scope.isGrid, $scope.isRte, $scope.language).then(function (data) {
                     $scope.markup = $sce.trustAsHtml(data);
                     $scope.loading = false;
                 });
