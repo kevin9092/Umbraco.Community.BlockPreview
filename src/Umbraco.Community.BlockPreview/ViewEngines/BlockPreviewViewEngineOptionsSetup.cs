@@ -39,10 +39,11 @@ namespace Umbraco.Community.BlockPreview.ViewEngines
             }
 
             public IEnumerable<string> ExpandViewLocations(
-                ViewLocationExpanderContext context, IEnumerable<string> viewLocations)
+                ViewLocationExpanderContext context,
+                IEnumerable<string> viewLocations)
             {
                 var customViewLocations = _options.GetAllViewLocations();
-                return customViewLocations!;
+                return viewLocations.Concat(customViewLocations!);
             }
 
             // not a dynamic expander
