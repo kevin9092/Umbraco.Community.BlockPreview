@@ -1,4 +1,4 @@
-﻿<Project>
+<Project>
   <ItemGroup>
     <UmbracoJsonSchemaFiles Include="$(MSBuildThisFileDirectory)..\appsettings-schema.blockpreview.json" Weight="-40" />
   </ItemGroup>
