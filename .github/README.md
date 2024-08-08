@@ -7,8 +7,14 @@
 
 <img src="https://raw.githubusercontent.com/rickbutterfield/Umbraco.Community.BlockPreview/develop/.github/assets/icon.png" alt="Umbraco.Community.BlockPreview icon" height="150" align="right">
 
-## Getting started
-### Installation
+## Installation
+> [!IMPORTANT]
+> **v2.x** supports Umbraco v14.2+
+> 
+> **v1.x** supports Umbraco v10.x - v13.x
+> 
+> To understand more about which Umbraco CMS versions are actively supported by Umbraco HQ, please see [Umbraco's Long-term Support (LTS) and End-of-Life (EOL) policy](https://umbraco.com/products/knowledge-center/long-term-support-and-end-of-life/).
+
 The Umbraco v14.2+ version of this package is [available via NuGet](https://www.nuget.org/packages/Umbraco.Community.BlockPreview).
 
 To install the package, you can use either .NET CLI:
@@ -17,13 +23,13 @@ To install the package, you can use either .NET CLI:
 dotnet add package Umbraco.Community.BlockPreview --version 2.0.0-rc2
 ```
 
-or the older NuGet Package Manager:
+or the NuGet Package Manager:
 
 ```
 Install-Package Umbraco.Community.BlockPreview -Version 2.0.0-rc2
 ```
 
-### Setup
+## Setup
 The package can be configured in the `Program.cs` file, before the call to the `.Build()` method:
 ```diff
 +using Umbraco.Community.BlockPreview.Extensions;
@@ -62,7 +68,7 @@ Alternatively, it can be configured in `appsettings.json`:
 }
 ```
 
-### Options
+## Options
 The following options can be configured, either in `.AddBlockPreview()` or `appsettings.json`:
 ```cs
 builder.AddBlockPreview(options =>
@@ -100,21 +106,24 @@ builder.AddBlockPreview(options =>
 }
 ```
 
-`Enabled` (`boolean`)
-Toggle previews on or off for a given data type.
+### Settings
+#### BlockPreview
+| Property  | Type                                      | Description                                    |
+|-----------|-------------------------------------------|------------------------------------------------|
+| BlockGrid | [`BlockTypeSettings`](#blocktypesettings) | Configure settings for the Block Grid previews |
+| BlockList | [`BlockTypeSettings`](#blocktypesettings) | Configure settings for the Block List previews |
 
-`ContentTypes` (`string[]|List<string>`)
-A list of content type aliases to enable the previews for. If this is left blank, or set to an empty array or null, all blocks will be enabled.
+#### BlockTypeSettings
+| Property      | Type                     | Description                                                                                                     |
+|---------------|--------------------------|-----------------------------------------------------------------------------------------------------------------|
+| Enabled       | boolean                  | Toggle previews on or off for a given data type.                                                                |
+| ContentTypes  | string[] \| List<string> | A list of content type aliases to enable the previews for. If left blank, all blocks will be enabled.           |
+| ViewLocations | string[] \| List<string> | A list of custom locations to be searched for your partial views. The default paths are included automatically. |
 
-`ViewLocations` (`string[]|List<string>`)
-A list of custom locations to be searched for your partial views. The default paths of `/Views/Partials/blockgrid/Components` and `/Views/Partials/blocklist/Components` are automatically included.
-
-Both `BlockGrid` and `BlockList` take the same options.
 
 
-### Usage
+## Usage
 This package installs a custom Web Component preview for both the Block List and Block Grid editors in the backoffice. Block Grid and Block List can be configured independently (v14.2+).
-
 
 Before and after of how components look within the Block Grid:
 ![Screenshot2](https://raw.githubusercontent.com/rickbutterfield/Umbraco.Community.BlockPreview/develop/.github/assets/screenshot2.png "Before and after of how components look within the Block Grid")
@@ -187,9 +196,8 @@ If your block partials are not in the usual `/Views/Partials/block[grid|list]/Co
 
 ```
 "BlockPreview": {
-  "ViewLocations": {
-    "BlockList": ["/path/to/block/list/views/{0}.cshtml"],
-    "BlockGrid": ["/path/to/block/grid/views/{0}.cshtml"]
+  "BlockGrid": {
+    "ViewLocations": ["/path/to/block/grid/views/{0}.cshtml"]
   }
 }
 ```
