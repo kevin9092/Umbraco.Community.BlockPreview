@@ -15,6 +15,6 @@ export class SettingsDataSource implements ISettingsDataSource {
     }
 
     async getSettings(): Promise<UmbDataSourceResponse<BlockPreviewOptions>> {
-        return await tryExecuteAndNotify(this.#host, BlockPreviewService.getUmbracoManagementApiV1BlockPreviewSettings());
+        return await tryExecuteAndNotify(this.#host, BlockPreviewService.getSettings());
     }
 }

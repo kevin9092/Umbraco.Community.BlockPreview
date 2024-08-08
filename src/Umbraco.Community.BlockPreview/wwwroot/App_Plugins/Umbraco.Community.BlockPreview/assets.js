@@ -13,8 +13,8 @@ import { UmbControllerBase as te } from "@umbraco-cms/backoffice/class-api";
 import { UMB_BLOCK_GRID_ENTRY_CONTEXT as re } from "@umbraco-cms/backoffice/block-grid";
 import { UMB_DOCUMENT_WORKSPACE_CONTEXT as U } from "@umbraco-cms/backoffice/document";
 import { css as $, state as u, property as H, customElement as G, html as K, ifDefined as F, unsafeHTML as W } from "@umbraco-cms/backoffice/external/lit";
-import { UmbLitElement as V } from "@umbraco-cms/backoffice/lit-element";
-import { observeMultiple as J } from "@umbraco-cms/backoffice/observable-api";
+import { UmbLitElement as J } from "@umbraco-cms/backoffice/lit-element";
+import { observeMultiple as V } from "@umbraco-cms/backoffice/observable-api";
 import { UMB_PROPERTY_CONTEXT as X, UMB_PROPERTY_DATASET_CONTEXT as z } from "@umbraco-cms/backoffice/property";
 import { UMB_BLOCK_LIST_ENTRY_CONTEXT as se } from "@umbraco-cms/backoffice/block-list";
 class L extends Error {
@@ -379,7 +379,7 @@ class me {
     P(this, _, e);
   }
   async getSettings() {
-    return await D(S(this, _), q.getUmbracoManagementApiV1BlockPreviewSettings());
+    return await D(S(this, _), q.getSettings());
   }
 }
 _ = new WeakMap();
@@ -410,7 +410,7 @@ var we = Object.defineProperty, be = Object.getOwnPropertyDescriptor, y = (t, e,
   e instanceof WeakSet ? e.add(t) : e.set(t, r);
 }, k = (t, e, r) => (_e(t, e, "access private method"), r), m, w;
 const Te = "block-grid-preview";
-let d = class extends V {
+let d = class extends J {
   constructor() {
     super(), Ee(this, m), this.htmlMarkup = "", this.documentUnique = "", this.blockEditorAlias = "", this.culture = "", this._value = {
       layout: {},
@@ -428,7 +428,7 @@ let d = class extends V {
       });
     }), this.consumeContext(re, (t) => {
       this.observe(
-        J([t.workspaceEditContentPath, t.content, t.settings, t.layout]),
+        V([t.workspaceEditContentPath, t.content, t.settings, t.layout]),
         async ([e, r, i, s]) => {
           this.workspaceEditContentPath = e, this._value = {
             ...this._value,
@@ -515,7 +515,7 @@ var ge = Object.defineProperty, Ce = Object.getOwnPropertyDescriptor, f = (t, e,
   e instanceof WeakSet ? e.add(t) : e.set(t, r);
 }, R = (t, e, r) => (ke(t, e, "access private method"), r), v, b;
 const Se = "block-list-preview";
-let h = class extends V {
+let h = class extends J {
   constructor() {
     super(), Re(this, v), this.htmlMarkup = "", this.documentUnique = "", this.blockEditorAlias = "", this.culture = "", this._value = {
       layout: {},
@@ -533,7 +533,7 @@ let h = class extends V {
       });
     }), this.consumeContext(se, (t) => {
       this.observe(
-        J([t.workspaceEditContentPath, t.content, t.settings, t.layout]),
+        V([t.workspaceEditContentPath, t.content, t.settings, t.layout]),
         async ([e, r, i, s]) => {
           this.workspaceEditContentPath = e, this._value = {
             ...this._value,
