@@ -1,12 +1,13 @@
 import { UMB_BLOCK_GRID_ENTRY_CONTEXT, UmbBlockGridValueModel } from "@umbraco-cms/backoffice/block-grid";
-import { UMB_DOCUMENT_WORKSPACE_CONTEXT } from "@umbraco-cms/backoffice/document";
 import { UmbBlockEditorCustomViewElement } from "@umbraco-cms/backoffice/extension-registry";
 import { css, customElement, html, ifDefined, property, state, unsafeHTML } from "@umbraco-cms/backoffice/external/lit";
 import { UmbLitElement } from "@umbraco-cms/backoffice/lit-element";
-import { observeMultiple } from "@umbraco-cms/backoffice/observable-api";
 import { UMB_PROPERTY_CONTEXT, UMB_PROPERTY_DATASET_CONTEXT } from "@umbraco-cms/backoffice/property";
 import { tryExecuteAndNotify } from "@umbraco-cms/backoffice/resources";
 import { BlockPreviewService, PreviewGridMarkupData } from "../api";
+import { observeMultiple } from "@umbraco-cms/backoffice/observable-api";
+import { UMB_DOCUMENT_WORKSPACE_CONTEXT } from "@umbraco-cms/backoffice/document";
+import { UmbContentTypeModel } from "@umbraco-cms/backoffice/content-type";
 
 const elementName = "block-grid-preview";
 
@@ -19,7 +20,13 @@ export class BlockGridPreviewCustomView
     htmlMarkup: string | undefined = "";
 
     @state()
-    documentUnique?: string = '';
+    documentTypeUnique?: string = '';
+
+    @state()
+    contentUdi: string | undefined = "";
+
+    @state()
+    settingsUdi: string | undefined | null = null;
 
     @state()
     blockEditorAlias?: string = '';
@@ -31,22 +38,25 @@ export class BlockGridPreviewCustomView
     workspaceEditContentPath?: string;
 
     @state()
-    private _value: UmbBlockGridValueModel = {
+    contentElementType: UmbContentTypeModel | undefined;
+
+    @state()
+    private _blockGridValue: UmbBlockGridValueModel = {
         layout: {},
         contentData: [],
         settingsData: []
     }
 
     @property({ attribute: false })
-    public set value(value: UmbBlockGridValueModel | undefined) {
+    public set blockGridValue(value: UmbBlockGridValueModel | undefined) {
         const buildUpValue: Partial<UmbBlockGridValueModel> = value ? { ...value } : {};
         buildUpValue.layout ??= {};
         buildUpValue.contentData ??= [];
         buildUpValue.settingsData ??= [];
-        this._value = buildUpValue as UmbBlockGridValueModel;
+        this._blockGridValue = buildUpValue as UmbBlockGridValueModel;
     }
-    public get value(): UmbBlockGridValueModel {
-        return this._value;
+    public get blockGridValue(): UmbBlockGridValueModel {
+        return this._blockGridValue;
     }
 
     constructor() {
@@ -57,7 +67,18 @@ export class BlockGridPreviewCustomView
                 this.blockEditorAlias = alias;
                 await this.#renderBlockPreview();
             });
-        })
+
+            this.observe(instance.value, async (value) => {
+                this.blockGridValue = {
+                    ...this.blockGridValue,
+                    contentData: value.contentData!,
+                    settingsData: value.settingsData!,
+                    layout: value.layout!
+                }
+
+                await this.#renderBlockPreview();
+            })
+        });
 
         this.consumeContext(UMB_PROPERTY_DATASET_CONTEXT, async (instance) => {
             this.culture = instance.getVariantId().culture ?? "";
@@ -65,39 +86,50 @@ export class BlockGridPreviewCustomView
         });
 
         this.consumeContext(UMB_DOCUMENT_WORKSPACE_CONTEXT, (context) => {
-            this.observe(context.unique, async (unique) => {
-                this.documentUnique = unique;
+            this.observe(context.contentTypeUnique, async (unique) => {
+                this.documentTypeUnique = unique;
                 await this.#renderBlockPreview();
             });
         });
 
         this.consumeContext(UMB_BLOCK_GRID_ENTRY_CONTEXT, (context) => {
             this.observe(
-                observeMultiple([context.workspaceEditContentPath, context.content, context.settings, context.layout]),
-                async ([workspaceEditContentPath, content, settings, layout]) => {
+                observeMultiple([context.contentUdi, context.settingsUdi, context.workspaceEditContentPath, context.contentElementType]),
+                async ([contentUdi, settingsUdi, workspaceEditContentPath, contentElementType]) => {
+                    this.contentUdi = contentUdi;
+                    this.settingsUdi = settingsUdi ?? undefined;
+                    this.contentElementType = contentElementType;
                     this.workspaceEditContentPath = workspaceEditContentPath;
 
-                    this._value = {
-                        ...this._value,
-                        contentData: [content!],
-                        settingsData: [settings!],
-                        layout: { ["Umbraco.BlockGrid"]: [layout!] }
-                    }
-
                     await this.#renderBlockPreview();
-                },
-                'renderBlockPreview',
-            );
+                });
         });
-    }  
+    }
 
     async #renderBlockPreview() {
-        if (!this.documentUnique || !this.blockEditorAlias || !this.value.contentData || !this.value.layout) return;
+        if (this.contentElementType?.alias === "richTextBlock") debugger;
 
-        const previewData: PreviewGridMarkupData = { blockEditorAlias: this.blockEditorAlias, culture: this.culture, pageKey: this.documentUnique, requestBody: JSON.stringify(this.value) };
+        if (!this.documentTypeUnique ||
+            !this.blockEditorAlias ||
+            !this.contentUdi ||
+            !this.contentElementType ||
+            this.settingsUdi === null ||
+            !this.blockGridValue.contentData ||
+            !this.blockGridValue.layout)
+            return;
+            
+
+        const previewData: PreviewGridMarkupData = {
+            blockEditorAlias: this.blockEditorAlias,
+            documentTypeUnique: this.documentTypeUnique,
+            contentUdi: this.contentUdi,
+            settingsUdi: this.settingsUdi,
+            culture: this.culture,
+            requestBody: JSON.stringify(this.blockGridValue)
+        };
 
         const { data } = await tryExecuteAndNotify(this, BlockPreviewService.previewGridMarkup(previewData));
-
+        
         if (data) this.htmlMarkup = data;
     }
 
@@ -123,6 +155,41 @@ export class BlockGridPreviewCustomView
 
             a:hover {
                 border-color: var(--uui-color-interactive-emphasis, #3544b1);
+            }
+
+            .preview-alert {
+                background-color: var(--uui-color-danger, #f0ac00);
+                border: 1px solid transparent;
+                border-radius: 0;
+                margin-bottom: 20px;
+                padding: 8px 35px 8px 14px;
+                position: relative;
+
+                &, a, h4 {
+                    color: #fff;
+                }
+
+                pre {
+                    white-space: normal;
+                }
+            }
+
+            .preview-alert-warning {
+                background-color: var(--uui-color-danger, #f0ac00);
+                border-color: transparent;
+                color: #fff;
+            }
+
+            .preview-alert-info {
+                background-color: var(--uui-color-default, #3544b1);
+                border-color: transparent;
+                color: #fff;
+            }
+
+            .preview-alert-danger, .preview-alert-error {
+                background-color: var(--uui-color-danger, #f0ac00);
+                border-color: transparent;
+                color: #fff;
             }
         `
     ]

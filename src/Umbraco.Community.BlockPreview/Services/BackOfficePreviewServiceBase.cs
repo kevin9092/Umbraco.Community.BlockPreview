@@ -207,11 +207,12 @@ namespace Umbraco.Community.BlockPreview.Services
         }
 
         public virtual async Task<string> GetMarkupForBlock(
-            IPublishedContent page,
             string blockData,
-            string blockEditorAlias,
             ControllerContext controllerContext,
-            string? culture)
+            string blockEditorAlias = "",
+            Guid documentTypeUnique = default,
+            string contentUdi = "",
+            string? settingsUdi = default)
         {
             return await Task.FromResult(string.Empty);
         }

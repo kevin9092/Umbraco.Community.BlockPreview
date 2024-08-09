@@ -8,17 +8,17 @@
 
 <section 
     class="inspiration" 
-    style="background-color:@backgroundColor"
+    style="background-color:#@backgroundColor"
     @(hasBrightContrast ? "bright-contrast" : null)>
     <div class="area-container">
         <div class="left-area">
-            @await Html.GetBlockGridItemAreaHtmlAsync(Model, "leftArea")
+            @await Html.GetPreviewBlockGridItemAreaHtmlAsync(Model, "leftArea")
         </div>
         <div class="right-area">
-            @await Html.GetBlockGridItemAreaHtmlAsync(Model, "rightArea")
+            @await Html.GetPreviewBlockGridItemAreaHtmlAsync(Model, "rightArea")
         </div>
         <div class="content-area">
-            @await Html.GetBlockGridItemAreaHtmlAsync(Model, "contentArea")
+            @await Html.GetPreviewBlockGridItemAreaHtmlAsync(Model, "contentArea")
         </div>
     </div>
 </section>

@@ -2819,9 +2819,11 @@ export type WebhookResponseModel = {
 
 export type PreviewGridMarkupData = {
     blockEditorAlias?: string;
+    contentUdi?: string;
     culture?: string;
-    pageKey?: string;
+    documentTypeUnique?: string;
     requestBody?: string;
+    settingsUdi?: string;
 };
 
 export type PreviewGridMarkupResponse = string;
@@ -2829,7 +2831,6 @@ export type PreviewGridMarkupResponse = string;
 export type PreviewListMarkupData = {
     blockEditorAlias?: string;
     culture?: string;
-    pageKey?: string;
     requestBody?: string;
 };
 
@@ -2838,7 +2839,6 @@ export type PreviewListMarkupResponse = string;
 export type PreviewRichTextMarkupData = {
     blockEditorAlias?: string;
     culture?: string;
-    pageKey?: string;
     requestBody?: string;
 };
 

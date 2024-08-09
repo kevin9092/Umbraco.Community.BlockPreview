@@ -1,5 +1,4 @@
 ﻿using System.Globalization;
-using System.Threading;
 using Umbraco.Cms.Core.Models.PublishedContent;
 
 namespace Umbraco.Community.BlockPreview.Services

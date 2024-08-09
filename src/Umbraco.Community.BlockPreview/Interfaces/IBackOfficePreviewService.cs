@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewComponents;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using Umbraco.Cms.Core;
 using Umbraco.Cms.Core.Models.Blocks;
-using Umbraco.Cms.Core.Models.PublishedContent;
 
 namespace Umbraco.Community.BlockPreview.Interfaces
 {
@@ -12,7 +12,7 @@ namespace Umbraco.Community.BlockPreview.Interfaces
         Type? FindBlockType(string? contentTypeAlias);
         ViewDataDictionary CreateViewData(object? typedBlockInstance);
         Task<string> GetMarkup(ControllerContext controllerContext, string contentAlias, ViewDataDictionary viewData);
-        Task<string> GetMarkupForBlock(IPublishedContent page, string blockData, string blockEditorAlias, ControllerContext controllerContext, string? culture);
+        Task<string> GetMarkupForBlock(string blockData, ControllerContext controllerContext, string blockEditorAlias = "", Guid documentTypeUnique = default, string contentUdi = "", string? settingsUdi = default);
         Task<string> GetMarkupFromViewComponent(ControllerContext controllerContext, ViewDataDictionary viewData, ViewComponentDescriptor viewComponent);
     }
 }

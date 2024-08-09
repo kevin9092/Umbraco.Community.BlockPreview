@@ -8,9 +8,11 @@ import type { PreviewGridMarkupData, PreviewGridMarkupResponse, PreviewListMarku
 export class BlockPreviewService {
     /**
      * @param data The data for the request.
-     * @param data.pageKey
      * @param data.blockEditorAlias
      * @param data.culture
+     * @param data.documentTypeUnique
+     * @param data.contentUdi
+     * @param data.settingsUdi
      * @param data.requestBody
      * @returns string OK
      * @throws ApiError
@@ -20,9 +22,11 @@ export class BlockPreviewService {
             method: 'POST',
             url: '/umbraco/management/api/v1/block-preview/preview/grid',
             query: {
-                pageKey: data.pageKey,
                 blockEditorAlias: data.blockEditorAlias,
-                culture: data.culture
+                culture: data.culture,
+                documentTypeUnique: data.documentTypeUnique,
+                contentUdi: data.contentUdi,
+                settingsUdi: data.settingsUdi
             },
             body: data.requestBody,
             mediaType: 'application/json',
@@ -35,7 +39,6 @@ export class BlockPreviewService {
     
     /**
      * @param data The data for the request.
-     * @param data.pageKey
      * @param data.blockEditorAlias
      * @param data.culture
      * @param data.requestBody
@@ -47,7 +50,6 @@ export class BlockPreviewService {
             method: 'POST',
             url: '/umbraco/management/api/v1/block-preview/preview/list',
             query: {
-                pageKey: data.pageKey,
                 blockEditorAlias: data.blockEditorAlias,
                 culture: data.culture
             },
@@ -62,7 +64,6 @@ export class BlockPreviewService {
     
     /**
      * @param data The data for the request.
-     * @param data.pageKey
      * @param data.blockEditorAlias
      * @param data.culture
      * @param data.requestBody
@@ -74,7 +75,6 @@ export class BlockPreviewService {
             method: 'POST',
             url: '/umbraco/management/api/v1/block-preview/preview/rte',
             query: {
-                pageKey: data.pageKey,
                 blockEditorAlias: data.blockEditorAlias,
                 culture: data.culture
             },

@@ -92,9 +92,9 @@ export class BlockListPreviewCustomView
     }
 
     async #renderBlockPreview() {
-        if (!this.documentUnique || !this.blockEditorAlias || !this.value.contentData || !this.value.layout) return;
+        if (!this.blockEditorAlias || !this.value.contentData || !this.value.layout) return;
 
-        const previewData: PreviewListMarkupData = { blockEditorAlias: this.blockEditorAlias, culture: this.culture, pageKey: this.documentUnique, requestBody: JSON.stringify(this.value) };
+        const previewData: PreviewListMarkupData = { blockEditorAlias: this.blockEditorAlias, culture: this.culture, requestBody: JSON.stringify(this.value) };
 
         const { data } = await tryExecuteAndNotify(this, BlockPreviewService.previewListMarkup(previewData));
 
@@ -123,6 +123,41 @@ export class BlockListPreviewCustomView
 
             a:hover {
                 border-color: var(--uui-color-interactive-emphasis, #3544b1);
+            }
+
+            .preview-alert {
+                background-color: var(--uui-color-danger, #f0ac00);
+                border: 1px solid transparent;
+                border-radius: 0;
+                margin-bottom: 20px;
+                padding: 8px 35px 8px 14px;
+                position: relative;
+
+                &, a, h4 {
+                    color: #fff;
+                }
+
+                pre {
+                    white-space: normal;
+                }
+            }
+
+            .preview-alert-warning {
+                background-color: var(--uui-color-warning, #f0ac00);
+                border-color: transparent;
+                color: #fff;
+            }
+
+            .preview-alert-info {
+                background-color: var(--uui-color-default, #3544b1);
+                border-color: transparent;
+                color: #fff;
+            }
+
+            .preview-alert-danger, .preview-alert-error {
+                background-color: var(--uui-color-danger, #f0ac00);
+                border-color: transparent;
+                color: #fff;
             }
         `
     ]

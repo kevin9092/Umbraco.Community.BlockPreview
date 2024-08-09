@@ -35,46 +35,41 @@ namespace Umbraco.Community.BlockPreview.Services
         }
 
         public override async Task<string> GetMarkupForBlock(
-            IPublishedContent content,
             string blockData,
-            string blockEditorAlias,
             ControllerContext controllerContext,
-            string? culture)
+            string blockEditorAlias = "",
+            Guid documentTypeUnique = default,
+            string contentUdi = "",
+            string? settingsUdi = default)
         {
-            if (!string.IsNullOrEmpty(culture))
-            {
-                _contextCultureService.SetCulture(culture);
-            }
-
             var converter = new RichTextEditorBlockDataConverter(_jsonSerializer);
-            converter.TryDeserialize(blockData, out BlockEditorData<RichTextBlockValue, RichTextBlockLayoutItem>? blockValue);
+            if (!converter.TryDeserialize(blockData, out BlockEditorData<RichTextBlockValue, RichTextBlockLayoutItem>? blockValue))
+                return string.Empty;
 
-            BlockItemData? contentData = blockValue?.BlockValue.ContentData.FirstOrDefault();
-            BlockItemData? settingsData = blockValue?.BlockValue.SettingsData.FirstOrDefault();
+            BlockItemData? contentData = blockValue.BlockValue?.ContentData.FirstOrDefault();
+            if (contentData == null)
+                return string.Empty;
 
-            if (contentData != null)
-            {
-                ConvertNestedValuesToString(contentData);
+            IPublishedElement? contentElement = ConvertToElement(contentData, true);
 
-                IPublishedElement? contentElement = ConvertToElement(contentData, true);
-                string? contentTypeAlias = contentElement?.ContentType.Alias;
+            BlockItemData? settingsData = blockValue.BlockValue?.SettingsData.FirstOrDefault();
+            IPublishedElement? settingsElement = settingsData != null ? ConvertToElement(settingsData, true) : default;
 
-                IPublishedElement? settingsElement = settingsData != null ? ConvertToElement(settingsData, true) : default;
-                string? settingsTypeAlias = settingsElement?.ContentType.Alias;
+            Type? contentBlockType = FindBlockType(contentElement?.ContentType.Alias);
+            Type? settingsBlockType = settingsElement != null ? FindBlockType(settingsElement.ContentType.Alias) : default;
 
-                Type? contentBlockType = FindBlockType(contentTypeAlias);
-                Type? settingsBlockType = settingsElement != null ? FindBlockType(settingsTypeAlias) : default;
+            RichTextBlockItem? blockInstance = CreateBlockInstance(
+                isGrid: false, isRte: true,
+                contentBlockType, contentElement,
+                settingsBlockType, settingsElement, contentData.Udi,
+                settingsData?.Udi
+            ) as RichTextBlockItem;
 
-                object? blockInstance = CreateBlockInstance(isGrid: false, isRte: true, contentBlockType, contentElement, settingsBlockType, settingsElement, contentData.Udi, settingsData?.Udi);
+            if (blockInstance == null)
+                return string.Empty;
 
-                RichTextBlockItem? typedBlockInstance = blockInstance as RichTextBlockItem;
-
-                ViewDataDictionary? viewData = CreateViewData(typedBlockInstance);
-
-                return await GetMarkup(controllerContext, contentTypeAlias, viewData);
-            }
-
-            return string.Empty;
+            ViewDataDictionary viewData = CreateViewData(blockInstance);
+            return await GetMarkup(controllerContext, contentElement?.ContentType.Alias, viewData);
         }
     }
 }

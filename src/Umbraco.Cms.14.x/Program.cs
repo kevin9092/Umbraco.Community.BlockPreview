@@ -1,3 +1,4 @@
+using Umbraco.Cms.Web.Common.PublishedModels;
 using Umbraco.Community.BlockPreview.Extensions;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
@@ -11,16 +12,7 @@ builder.CreateUmbracoBuilder()
     {
         options.BlockGrid = new()
         {
-            Enabled = true,
-            ContentTypes = [],
-            ViewLocations = []
-        };
-
-        options.BlockList = new()
-        {
-            Enabled = false,
-            ContentTypes = [],
-            ViewLocations = []
+            Enabled = true
         };
     })
     .Build();
