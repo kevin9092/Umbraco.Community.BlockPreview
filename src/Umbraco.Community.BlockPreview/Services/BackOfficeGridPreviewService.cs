@@ -3,18 +3,30 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.AspNetCore.Mvc.ViewComponents;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
+using Umbraco.Cms.Core;
 using Umbraco.Cms.Core.Composing;
+using Umbraco.Cms.Core.Models;
 using Umbraco.Cms.Core.Models.Blocks;
 using Umbraco.Cms.Core.Models.PublishedContent;
+using Umbraco.Cms.Core.PropertyEditors;
 using Umbraco.Cms.Core.PropertyEditors.ValueConverters;
+using Umbraco.Cms.Core.Serialization;
+using Umbraco.Cms.Core.Services;
 using Umbraco.Community.BlockPreview.Interfaces;
+using Umbraco.Extensions;
 
 namespace Umbraco.Community.BlockPreview.Services
 {
     public sealed class BackOfficeGridPreviewService : BackOfficePreviewServiceBase, IBackOfficeGridPreviewService
     {
+        private readonly IMemoryCache _memoryCache;
         private readonly ContextCultureService _contextCultureService;
+        private readonly IJsonSerializer _jsonSerializer;
+        private readonly IDataTypeService _dataTypeService;
+        private readonly IContentTypeService _contentTypeService;
 
         public BackOfficeGridPreviewService(
             BlockEditorConverter blockEditorConverter,
@@ -25,90 +37,132 @@ namespace Umbraco.Community.BlockPreview.Services
             IViewComponentHelperWrapper viewComponentHelperWrapper,
             IViewComponentSelector viewComponentSelector,
             IOptions<BlockPreviewOptions> options,
-            IRazorViewEngine razorViewEngine) : base(tempDataProvider, viewComponentHelperWrapper, razorViewEngine, typeFinder, blockEditorConverter, viewComponentSelector, publishedValueFallback, options)
+            IRazorViewEngine razorViewEngine,
+            IJsonSerializer jsonSerializer,
+            IContentTypeService contentTypeService,
+            IDataTypeService dataTypeService,
+            IMemoryCache memoryCache)
+            : base(tempDataProvider, viewComponentHelperWrapper, razorViewEngine, typeFinder, blockEditorConverter, viewComponentSelector, publishedValueFallback, options)
         {
             _contextCultureService = contextCultureService;
+            _jsonSerializer = jsonSerializer;
+            _contentTypeService = contentTypeService;
+            _dataTypeService = dataTypeService;
+            _memoryCache = memoryCache;
         }
 
         public override async Task<string> GetMarkupForBlock(
-            IPublishedContent page,
-            BlockValue blockValue,
-            string blockEditorAlias,
+            BlockValue blockData,
             ControllerContext controllerContext,
-            string? culture)
+            string blockEditorAlias = "",
+            Guid documentTypeUnique = default,
+            string contentUdi = "",
+            string? settingsUdi = default)
         {
-            if (!string.IsNullOrEmpty(culture))
+            if (blockData == null)
+                return string.Empty;
+
+            if (!UdiParser.TryParse(contentUdi, out Udi? contentUdiParsed))
+                return string.Empty;
+
+            UdiParser.TryParse(settingsUdi!, out Udi? settingsUdiParsed);
+
+            BlockItemData? contentData = blockData.ContentData.FirstOrDefault(x => x.Udi == contentUdiParsed);
+            if (contentData == null)
+                return string.Empty;
+
+            IPublishedElement? contentElement = ConvertToElement(contentData, true);
+
+            BlockItemData? settingsData = settingsUdiParsed != null
+                ? blockData.SettingsData.FirstOrDefault(x => x.Udi == settingsUdiParsed)
+                : null;
+
+            IPublishedElement? settingsElement = settingsData != null ? ConvertToElement(settingsData, true) : default;
+
+            Type? contentBlockType = FindBlockType(contentElement?.ContentType.Alias);
+            Type? settingsBlockType = settingsElement != null ? FindBlockType(settingsElement.ContentType.Alias) : default;
+
+            BlockGridItem? blockInstance = CreateBlockInstance(
+                isGrid: true, isRte: false,
+                contentBlockType, contentElement,
+                settingsBlockType, settingsElement, contentData.Udi,
+                settingsData?.Udi
+            ) as BlockGridItem;
+
+            if (blockInstance == null)
+                return string.Empty;
+
+            string? layoutItemJson = blockData?.Layout?.FirstOrDefault().Value.FirstOrDefault()!.ToString();
+            BlockGridLayoutItem? layoutItem = null;
+
+            if (!string.IsNullOrEmpty(layoutItemJson))
             {
-                _contextCultureService.SetCulture(culture);
+                layoutItem = JsonConvert.DeserializeObject<BlockGridLayoutItem>(layoutItemJson);
+                if (layoutItem != null)
+                {
+                    blockInstance.RowSpan = layoutItem.RowSpan!.Value;
+                    blockInstance.ColumnSpan = layoutItem.ColumnSpan!.Value;
+                }
             }
 
-            BlockItemData? contentData = blockValue.ContentData.FirstOrDefault();
-            BlockItemData? settingsData = blockValue.SettingsData.FirstOrDefault();
+            IContentType? documentType = _contentTypeService.Get(documentTypeUnique);            
+            if (documentType == null)
+                return string.Empty;
 
-            if (contentData != null)
-            {
-                ConvertNestedValuesToString(contentData);
+            IPropertyType? property = documentType.PropertyTypes.FirstOrDefault(x => x.Alias.Equals(blockEditorAlias));            
+            if (property == null)
+                return string.Empty;
 
-                IPublishedElement? contentElement = ConvertToElement(contentData, true);
-                string? contentTypeAlias = contentElement?.ContentType.Alias;
+            IDataType? dataType = _dataTypeService.GetAll(property.DataTypeId).FirstOrDefault();
+            if (dataType == null)
+                return string.Empty;
 
-                IPublishedElement? settingsElement = settingsData != null ? ConvertToElement(settingsData, true) : default;
-                string? settingsTypeAlias = settingsElement?.ContentType.Alias;
+            BlockGridConfiguration? config = dataType.ConfigurationAs<BlockGridConfiguration>();
+            if (config == null)
+                return string.Empty;
 
-                Type? contentBlockType = FindBlockType(contentTypeAlias);
-                Type? settingsBlockType = settingsElement != null ? FindBlockType(settingsTypeAlias) : default;
+            BlockGridConfiguration.BlockGridBlockConfiguration? matchingBlock = config.Blocks.FirstOrDefault(x => x.ContentElementTypeKey == contentData.ContentTypeKey);
+            if (matchingBlock == null)
+                return string.Empty;
 
-                object? blockInstance = CreateBlockInstance(true, false, contentBlockType, contentElement, settingsBlockType, settingsElement, contentData.Udi, settingsData?.Udi);
+            ConfigureBlockInstanceAreas(blockInstance, config, matchingBlock, layoutItem!, blockData!);
 
-                BlockGridItem? typedBlockInstance = blockInstance as BlockGridItem;
-
-                var contentProperty = page.Properties.FirstOrDefault(x => x.PropertyType.EditorAlias.Equals(blockEditorAlias));
-
-                BlockGridModel? typedBlockGridModel = contentProperty?.GetValue() as BlockGridModel;
-
-                UpdateBlockGridItem(typedBlockGridModel, contentData, typedBlockInstance);
-
-                ViewDataDictionary? viewData = CreateViewData(typedBlockInstance);
-
-                return await GetMarkup(controllerContext, contentTypeAlias, viewData, true);
-            }
-
-            return string.Empty;
+            ViewDataDictionary viewData = CreateViewData(blockInstance);
+            return await GetMarkup(controllerContext, contentElement?.ContentType.Alias, viewData);
         }
 
-        private static void UpdateBlockGridItem(BlockGridModel? typedBlockGridModel, BlockItemData? contentData, BlockGridItem? typedBlockInstance)
+        private void ConfigureBlockInstanceAreas(
+            BlockGridItem blockInstance,
+            BlockGridConfiguration config,
+            BlockGridConfiguration.BlockGridBlockConfiguration matchingBlock,
+            BlockGridLayoutItem layoutItem,
+            BlockValue blockValue)
         {
-            if (typedBlockGridModel != null)
+            blockInstance.AreaGridColumns = matchingBlock.AreaGridColumns ?? 12;
+            blockInstance.GridColumns = config.GridColumns ?? 12;
+
+            var blockConfigAreaMap = matchingBlock.Areas.ToDictionary(area => area.Key);
+            if (layoutItem == null || blockConfigAreaMap == null || !blockConfigAreaMap.Any())
+                return;
+
+            blockInstance.Areas = layoutItem.Areas.Select(area =>
             {
-                var blockGridItem = typedBlockGridModel?.FirstOrDefault(x => x.ContentUdi == contentData?.Udi);
+                if (!blockConfigAreaMap.TryGetValue(area.Key, out var areaConfig))
+                    return null;
 
-                if (blockGridItem == null && typedBlockGridModel != null)
+                var items = area.Items.Select(item =>
                 {
-                    foreach (BlockGridItem item in typedBlockGridModel)
-                    {
-                        foreach (BlockGridArea area in item.Areas)
-                        {
-                            foreach (BlockGridItem childItem in area)
-                            {
-                                if (childItem.ContentUdi == contentData?.Udi)
-                                {
-                                    blockGridItem = childItem;
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                }
+                    BlockItemData? areaContentData = blockValue.ContentData.FirstOrDefault(x => x.Udi == item.ContentUdi);
+                    IPublishedElement? areaContentElement = ConvertToElement(areaContentData!, true);
 
-                if (blockGridItem != null && typedBlockInstance != null)
-                {
-                    typedBlockInstance.RowSpan = blockGridItem.RowSpan;
-                    typedBlockInstance.ColumnSpan = blockGridItem.ColumnSpan;
-                    typedBlockInstance.AreaGridColumns = blockGridItem.AreaGridColumns;
-                    typedBlockInstance.GridColumns = blockGridItem.GridColumns;
-                    typedBlockInstance.Areas = blockGridItem.Areas;
-                }
-            }
+                    BlockItemData? areaSettingsData = blockValue.SettingsData.FirstOrDefault(x => x.Udi == item.SettingsUdi);
+                    IPublishedElement? areaSettingsElement = areaSettingsData != null ? ConvertToElement(areaSettingsData, true) : default;
+
+                    return new BlockGridItem(item.ContentUdi!, areaContentElement!, item.SettingsUdi!, areaSettingsElement!);
+                }).WhereNotNull().ToList();
+
+                return new BlockGridArea(items, areaConfig.Alias!, areaConfig.RowSpan!.Value, areaConfig.ColumnSpan!.Value);
+            }).WhereNotNull().ToList();
         }
 
         public override ViewDataDictionary CreateViewData(object? typedBlockInstance)

@@ -30,43 +30,40 @@ namespace Umbraco.Community.BlockPreview.Services
         }
 
         public override async Task<string> GetMarkupForBlock(
-            IPublishedContent page,
-            BlockValue blockValue,
-            string blockEditorAlias,
+            BlockValue blockData,
             ControllerContext controllerContext,
-            string? culture)
+            string blockEditorAlias = "",
+            Guid documentTypeUnique = default,
+            string contentUdi = "",
+            string? settingsUdi = default)
         {
-            if (!string.IsNullOrEmpty(culture))
-            {
-                _contextCultureService.SetCulture(culture);
-            }
+            if (blockData == null)
+                return string.Empty;
 
-            BlockItemData? contentData = blockValue.ContentData.FirstOrDefault();
-            BlockItemData? settingsData = blockValue.SettingsData.FirstOrDefault();
+            BlockItemData? contentData = blockData.ContentData.FirstOrDefault();
+            if (contentData == null)
+                return string.Empty;
 
-            if (contentData != null)
-            {
-                ConvertNestedValuesToString(contentData);
+            IPublishedElement? contentElement = ConvertToElement(contentData, true);
 
-                IPublishedElement? contentElement = ConvertToElement(contentData, true);
-                string? contentTypeAlias = contentElement?.ContentType.Alias;
+            BlockItemData? settingsData = blockData.SettingsData.FirstOrDefault();
+            IPublishedElement? settingsElement = settingsData != null ? ConvertToElement(settingsData, true) : default;
 
-                IPublishedElement? settingsElement = settingsData != null ? ConvertToElement(settingsData, true) : default;
-                string? settingsTypeAlias = settingsElement?.ContentType.Alias;
+            Type? contentBlockType = FindBlockType(contentElement?.ContentType.Alias);
+            Type? settingsBlockType = settingsElement != null ? FindBlockType(settingsElement.ContentType.Alias) : default;
 
-                Type? contentBlockType = FindBlockType(contentTypeAlias);
-                Type? settingsBlockType = settingsElement != null ? FindBlockType(settingsTypeAlias) : default;
+            BlockListItem? blockInstance = CreateBlockInstance(
+                isGrid: false, isRte: false,
+                contentBlockType, contentElement,
+                settingsBlockType, settingsElement, contentData.Udi,
+                settingsData?.Udi
+            ) as BlockListItem;
 
-                object? blockInstance = CreateBlockInstance(false, false, contentBlockType, contentElement, settingsBlockType, settingsElement, contentData.Udi, settingsData?.Udi);
+            if (blockInstance == null)
+                return string.Empty;
 
-                BlockListItem? typedBlockInstance = blockInstance as BlockListItem;
-
-                ViewDataDictionary? viewData = CreateViewData(typedBlockInstance);
-
-                return await GetMarkup(controllerContext, contentTypeAlias, viewData);
-            }
-
-            return string.Empty;
+            ViewDataDictionary viewData = CreateViewData(blockInstance);
+            return await GetMarkup(controllerContext, contentElement?.ContentType.Alias, viewData);
         }
     }
 }

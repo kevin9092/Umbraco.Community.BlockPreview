@@ -14,7 +14,8 @@
 
             $scope.cacheBuster = Umbraco.Sys.ServerVariables.application.cacheBuster;
 
-            $scope.id = current.id;
+            debugger;
+            $scope.documentTypeKey = current.documentType.key;
             $scope.loading = true;
             $scope.markup = $sce.trustAsHtml('<div class="preview-alert preview-alert-info">Loading preview</div>');
 
@@ -23,13 +24,25 @@
             var parent = $scope.$parent;
 
             $scope.isGrid = false;
+            $scope.isList = false;
             $scope.isRte = false;
+            
+            $scope.contentUdi = $scope.block.content.udi;
+            $scope.settingsUdi = $scope.block.settingsData?.udi || '';
 
             while (parent.$parent) {
                 if (parent.vm) {
                     if (parent.vm.constructor.name == 'BlockGridController') {
-                        $scope.blockEditorAlias = parent.vm.model.editor;
+                        $scope.blockEditorAlias = parent.vm.model.alias;
+                        $scope.modelValue = parent.vm.model.value;
                         $scope.isGrid = true;
+                        break;
+                    }
+
+                    if (parent.vm.constructor.name == 'BlockListController') {
+                        $scope.blockEditorAlias = parent.vm.model.alias;
+                        $scope.modelValue = parent.vm.model.value;
+                        $scope.isList = true;
                         break;
                     }
                 }
@@ -47,19 +60,13 @@
             function loadPreview(content, settings) {
                 $scope.markup = $sce.trustAsHtml('<div class="preview-alert preview-alert-info">Loading preview</div>');
                 $scope.loading = true;
-
-                var formattedBlockData = {
-                    layout: $scope.block.layout,
-                    contentData: [content || $scope.block.data],
-                    settingsData: [settings || $scope.block.settingsData]
-                };
-
-                previewResource.getPreview(formattedBlockData, $scope.id, $scope.blockEditorAlias, $scope.isGrid, $scope.isRte, $scope.language).then(function (data) {
+                
+                previewResource.getPreview($scope.modelValue, $scope.documentTypeKey, $scope.blockEditorAlias, $scope.contentUdi, $scope.settingsUdi, $scope.isGrid, $scope.isList, $scope.isRte, $scope.language).then(function (data) {
                     $scope.markup = $sce.trustAsHtml(data);
                     $scope.loading = false;
                 });
             }
-
+            
             loadPreview($scope.block.data, $scope.block.settingsData);
 
             var timeoutPromise;

@@ -67,71 +67,61 @@ namespace Umbraco.Community.BlockPreview.Controllers
         /// <returns>The markup to render in the preview.</returns>
         [HttpPost]
         public async Task<IActionResult> PreviewMarkup(
-            [FromBody] BlockValue data,
-            [FromQuery] int pageId = 0,
+            [FromBody] BlockValue blockData,
             [FromQuery] string blockEditorAlias = "",
+            [FromQuery] string culture = "",
+            [FromQuery] Guid documentTypeKey = default,
+            [FromQuery] string contentUdi = "",
+            [FromQuery] string? settingsUdi = default,
             [FromQuery] bool isGrid = false,
-            [FromQuery] bool isRte = false,
-            [FromQuery] string culture = "")
+            [FromQuery] bool isList = false,
+            [FromQuery] bool isRte = false)
         {
-            string markup;
+            string markup = "";
 
             try
             {
-                IPublishedContent? page = null;
+                string? currentCulture = GetCurrentCulture(culture);
 
-                // If the page is new, then the ID will be zero
-                if (pageId > 0)
-                {
-                    page = GetPublishedContentForPage(pageId);
-                }
-
-                if (page == null)
-                {
-                    return Ok("<div class=\"preview-alert preview-alert-warning\"><strong>Cannot create a preview:</strong> the page must be saved before a preview can be created</div>");
-                }
-
-                string? currentCulture = GetCurrentCulture(page, culture);
-
-                await SetupPublishedRequest(page, currentCulture);
+                await SetupPublishedRequest(currentCulture);
 
                 if (isGrid)
                 {
-                    markup = await _backOfficeGridPreviewService.GetMarkupForBlock(page, data, blockEditorAlias, ControllerContext, currentCulture);
+                    markup = await _backOfficeGridPreviewService.GetMarkupForBlock(blockData, ControllerContext, blockEditorAlias, documentTypeKey, contentUdi, settingsUdi);
                 }
-                else if (isRte)
+                if (isRte)
                 {
-                    markup = await _backOfficeRtePreviewService.GetMarkupForBlock(page, data, blockEditorAlias, ControllerContext, currentCulture);
+                    markup = await _backOfficeRtePreviewService.GetMarkupForBlock(blockData, ControllerContext, blockEditorAlias);
                 }
-                else
+                if (isList)
                 {
-                    markup = await _backOfficeListPreviewService.GetMarkupForBlock(page, data, blockEditorAlias, ControllerContext, currentCulture);
+                    markup = await _backOfficeListPreviewService.GetMarkupForBlock(blockData, ControllerContext, blockEditorAlias);
                 }
             }
             catch (Exception ex)
             {
                 markup = $"<div class=\"preview-alert preview-alert-error\"><strong>Something went wrong rendering a preview.</strong><br/><pre>{ex.Message}</pre></div>";
-                _logger.LogError(ex, "Error rendering preview for block {ContentTypeAlias}", data.ContentData.FirstOrDefault()?.ContentTypeAlias);
+                _logger.LogError(ex, $"Error rendering preview for block {blockEditorAlias}");
             }
 
             string? cleanMarkup = CleanUpMarkup(markup);
             return Ok(cleanMarkup);
         }
 
-        private string? GetCurrentCulture(IPublishedContent page, string culture)
+        private string? GetCurrentCulture(string culture)
         {
             // if in a culture variant setup also set the correct language.
-            var currentCulture = string.IsNullOrWhiteSpace(culture)
-                ? page.GetCultureFromDomains(_umbracoContextAccessor, _siteDomainMapper)
-                : culture;
+            //var currentCulture = string.IsNullOrWhiteSpace(culture)
+            //    ? page.GetCultureFromDomains(_umbracoContextAccessor, _siteDomainMapper)
+            //    : culture;
 
-            if (currentCulture == "undefined")
-                currentCulture = _localizationService.GetDefaultLanguageIsoCode();
+            if (string.IsNullOrEmpty(culture) || culture == "undefined")
+                culture = _localizationService.GetDefaultLanguageIsoCode();
 
-            return currentCulture;
+            return culture;
         }
 
-        private async Task SetupPublishedRequest(IPublishedContent page, string? culture)
+        private async Task SetupPublishedRequest(string? culture)
         {
             // set the published request for the page we are editing in the back office
             if (!_umbracoContextAccessor.TryGetUmbracoContext(out IUmbracoContext? context))
@@ -139,7 +129,7 @@ namespace Umbraco.Community.BlockPreview.Controllers
 
             // set the published request
             var requestBuilder = await _publishedRouter.CreateRequestAsync(new Uri(Request.GetDisplayUrl()));
-            requestBuilder.SetPublishedContent(page);
+            //requestBuilder.SetPublishedContent(page);
             context.PublishedRequest = requestBuilder.Build();
             context.ForcedPreview(true);
 
