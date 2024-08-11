@@ -1,4 +1,3 @@
-using Umbraco.Cms.Web.Common.PublishedModels;
 using Umbraco.Community.BlockPreview.Extensions;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
@@ -10,10 +9,8 @@ builder.CreateUmbracoBuilder()
     .AddComposers()
     .AddBlockPreview(options =>
     {
-        options.BlockGrid = new()
-        {
-            Enabled = true
-        };
+        options.BlockGrid.Enabled = true;
+        options.BlockList.Enabled = true;
     })
     .Build();
 

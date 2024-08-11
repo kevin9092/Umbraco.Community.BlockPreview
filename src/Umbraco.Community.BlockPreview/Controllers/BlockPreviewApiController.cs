@@ -26,9 +26,7 @@ namespace Umbraco.Community.BlockPreview.Controllers
         private readonly ILogger<BlockPreviewApiController> _logger;
         private readonly IUmbracoContextAccessor _umbracoContextAccessor;
         private readonly ContextCultureService _contextCultureService;
-        private readonly IBackOfficeListPreviewService _backOfficeListPreviewService;
-        private readonly IBackOfficeGridPreviewService _backOfficeGridPreviewService;
-        private readonly IBackOfficeRtePreviewService _backOfficeRtePreviewService;
+        private readonly IBlockPreviewService _blockPreviewService;
         private readonly ILanguageService _languageService;
         private readonly ISiteDomainMapper _siteDomainMapper;
         private readonly BlockPreviewOptions _blockPreviewSettings;
@@ -41,9 +39,7 @@ namespace Umbraco.Community.BlockPreview.Controllers
             ILogger<BlockPreviewApiController> logger,
             IUmbracoContextAccessor umbracoContextAccessor,
             ContextCultureService contextCultureSwitcher,
-            IBackOfficeListPreviewService backOfficeListPreviewService,
-            IBackOfficeGridPreviewService backOfficeGridPreviewService,
-            IBackOfficeRtePreviewService backOfficeRtePreviewService,
+            IBlockPreviewService blockPreviewService,
             ILanguageService languageService,
             ISiteDomainMapper siteDomainMapper,
             IOptionsMonitor<BlockPreviewOptions> blockPreviewSettings)
@@ -52,9 +48,7 @@ namespace Umbraco.Community.BlockPreview.Controllers
             _logger = logger;
             _umbracoContextAccessor = umbracoContextAccessor;
             _contextCultureService = contextCultureSwitcher;
-            _backOfficeListPreviewService = backOfficeListPreviewService;
-            _backOfficeGridPreviewService = backOfficeGridPreviewService;
-            _backOfficeRtePreviewService = backOfficeRtePreviewService;
+            _blockPreviewService = blockPreviewService;
             _languageService = languageService;
             _siteDomainMapper = siteDomainMapper;
             _blockPreviewSettings = blockPreviewSettings.CurrentValue;
@@ -63,16 +57,20 @@ namespace Umbraco.Community.BlockPreview.Controllers
         /// <summary>
         /// Renders a preview for a grid block using the associated Razor view or ViewComponent.
         /// </summary>
-        /// <param name="data">The JSON content data of the block.</param>
-        /// <param name="pageId">The current page id.</param>
+        /// <param name="blockData">The JSON content data of the block.</param>
         /// <param name="blockEditorAlias">The alias of the block editor</param>
-        /// <param name="culture">The culture</param>
+        /// <param name="contentElementAlias">The alias of the content being rendered</param>
+        /// <param name="culture">The current culture</param>
+        /// <param name="documentTypeUnique">The <see cref="Guid"/> that represents the Umbraco node</param>
+        /// <param name="contentUdi">The <see cref="Cms.Core.Udi"/> that represents the content element</param>
+        /// <param name="contentUdi">The <see cref="Cms.Core.Udi"/> that represents the settings element</param>
         /// <returns>The markup to render in the preview.</returns>
         [HttpPost("preview/grid")]
         [ProducesResponseType(typeof(string), 200)]
-        public async Task<IActionResult> PreviewGridMarkup(
+        public async Task<IActionResult> PreviewGridBlock(
             [FromBody] string blockData,
             [FromQuery] string blockEditorAlias = "",
+            [FromQuery] string contentElementAlias = "",
             [FromQuery] string? culture = "",
             [FromQuery] Guid documentTypeUnique = default,
             [FromQuery] string contentUdi = "",
@@ -86,12 +84,12 @@ namespace Umbraco.Community.BlockPreview.Controllers
 
                 await SetupPublishedRequest(currentCulture);
 
-                markup = await _backOfficeGridPreviewService.GetMarkupForBlock(blockData, ControllerContext, blockEditorAlias, documentTypeUnique, contentUdi, settingsUdi);
+                markup = await _blockPreviewService.RenderGridBlock(blockData, ControllerContext, blockEditorAlias, documentTypeUnique, contentUdi, settingsUdi);
             }
             catch (Exception ex)
             {
                 markup = $"<div class=\"preview-alert preview-alert-error\"><strong>Something went wrong rendering a preview.</strong><br/><pre>{ex.Message}</pre></div>";
-                _logger.LogError(ex, $"Error rendering preview for block {blockEditorAlias}");
+                _logger.LogError(ex, $"Error rendering preview for block {contentElementAlias}");
             }
 
             string? cleanMarkup = CleanUpMarkup(markup);
@@ -101,16 +99,17 @@ namespace Umbraco.Community.BlockPreview.Controllers
         /// <summary>
         /// Renders a preview for a list block using the associated Razor view or ViewComponent.
         /// </summary>
-        /// <param name="data">The JSON content data of the block.</param>
-        /// <param name="pageId">The current page id.</param>
+        /// <param name="blockData">The JSON content data of the block.</param>
         /// <param name="blockEditorAlias">The alias of the block editor</param>
-        /// <param name="culture">The culture</param>
+        /// <param name="contentElementAlias">The alias of the content being rendered</param>
+        /// <param name="culture">The current culture</param>
         /// <returns>The markup to render in the preview.</returns>
         [HttpPost("preview/list")]
         [ProducesResponseType(typeof(string), 200)]
-        public async Task<IActionResult> PreviewListMarkup(
+        public async Task<IActionResult> PreviewListBlock(
             [FromBody] string blockData,
             [FromQuery] string blockEditorAlias = "",
+            [FromQuery] string contentElementAlias = "",
             [FromQuery] string culture = "")
         {
             string markup;
@@ -121,12 +120,12 @@ namespace Umbraco.Community.BlockPreview.Controllers
 
                 await SetupPublishedRequest(currentCulture);
 
-                markup = await _backOfficeListPreviewService.GetMarkupForBlock(blockData, ControllerContext);
+                markup = await _blockPreviewService.RenderListBlock(blockData, ControllerContext);
             }
             catch (Exception ex)
             {
                 markup = $"<div class=\"preview-alert preview-alert-error\"><strong>Something went wrong rendering a preview.</strong><br/><pre>{ex.Message}</pre></div>";
-                _logger.LogError(ex, $"Error rendering preview for block {blockEditorAlias}");
+                _logger.LogError(ex, $"Error rendering preview for block {contentElementAlias}");
             }
 
             string? cleanMarkup = CleanUpMarkup(markup);
@@ -134,18 +133,19 @@ namespace Umbraco.Community.BlockPreview.Controllers
         }
 
         /// <summary>
-        /// Renders a preview for a list block using the associated Razor view or ViewComponent.
+        /// Renders a preview for a rich text block using the associated Razor view or ViewComponent.
         /// </summary>
-        /// <param name="data">The JSON content data of the block.</param>
-        /// <param name="pageId">The current page id.</param>
+        /// <param name="blockData">The JSON content data of the block.</param>
         /// <param name="blockEditorAlias">The alias of the block editor</param>
-        /// <param name="culture">The culture</param>
+        /// <param name="contentElementAlias">The alias of the content being rendered</param>
+        /// <param name="culture">The current culture</param>
         /// <returns>The markup to render in the preview.</returns>
         [HttpPost("preview/rte")]
         [ProducesResponseType(typeof(string), 200)]
         public async Task<IActionResult> PreviewRichTextMarkup(
             [FromBody] string blockData,
             [FromQuery] string blockEditorAlias = "",
+            [FromQuery] string contentElementAlias = "",
             [FromQuery] string culture = "")
         {
             string markup;
@@ -156,12 +156,12 @@ namespace Umbraco.Community.BlockPreview.Controllers
 
                 await SetupPublishedRequest(currentCulture);
 
-                markup = await _backOfficeRtePreviewService.GetMarkupForBlock(blockData, ControllerContext);
+                markup = await _blockPreviewService.RenderRichTextBlock(blockData, ControllerContext);
             }
             catch (Exception ex)
             {
                 markup = $"<div class=\"preview-alert preview-alert-error\"><strong>Something went wrong rendering a preview.</strong><br/><pre>{ex.Message}</pre></div>";
-                _logger.LogError(ex, $"Error rendering preview for block {blockEditorAlias}");
+                _logger.LogError(ex, $"Error rendering preview for block {contentElementAlias}");
             }
 
             string? cleanMarkup = CleanUpMarkup(markup);

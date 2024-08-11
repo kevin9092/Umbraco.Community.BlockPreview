@@ -1,4 +1,6 @@
-﻿namespace Umbraco.Community.BlockPreview
+﻿using Umbraco.Community.BlockPreview.Enums;
+
+namespace Umbraco.Community.BlockPreview
 {
     public class BlockPreviewOptions
     {
@@ -6,24 +8,54 @@
         public BlockTypeSettings BlockList { get; set; }
         public BlockTypeSettings RichText { get; set; }
 
+        public List<string>? GetViewLocations(BlockType blockType)
+        {
+            var locations = new List<string>();
+
+            if (blockType == BlockType.BlockGrid)
+            {
+                if (BlockGrid?.ViewLocations?.Any() == true)
+                    locations.AddRange(BlockGrid.ViewLocations);
+
+                locations.Add(Constants.DefaultViewLocations.BlockGrid);
+            }
+
+            if (blockType == BlockType.BlockList)
+            {
+                if (BlockList?.ViewLocations?.Any() == true)
+                    locations.AddRange(BlockList.ViewLocations);
+                
+                locations.Add(Constants.DefaultViewLocations.BlockList);
+            }
+
+            if (blockType == BlockType.RichText)
+            {
+                if (RichText?.ViewLocations?.Any() == true)
+                    locations.AddRange(RichText.ViewLocations);
+
+                locations.Add(Constants.DefaultViewLocations.RichText);
+            }
+
+            locations = locations.Distinct().ToList();
+
+            return locations;
+        }
+
         public List<string>? GetAllViewLocations()
         {
             var locations = new List<string>();
 
-            if (BlockGrid?.ViewLocations?.Any() == true)
-                locations.AddRange(BlockGrid.ViewLocations);
+            var blockGridLocations = GetViewLocations(BlockType.BlockGrid);
+            if (blockGridLocations?.Any() == true)
+                locations.AddRange(blockGridLocations);
 
-            if (BlockList?.ViewLocations?.Any() == true)
-                locations.AddRange(BlockList.ViewLocations);
+            var blockListLocations = GetViewLocations(BlockType.BlockList);
+            if (blockListLocations?.Any() == true)
+                locations.AddRange(blockListLocations);
 
-            if (RichText?.ViewLocations?.Any() == true)
-                locations.AddRange(RichText.ViewLocations);
-
-            locations.Add(Constants.DefaultViewLocations.BlockGrid);
-            locations.Add(Constants.DefaultViewLocations.BlockList);
-            locations.Add(Constants.DefaultViewLocations.RichText);
-
-            locations = locations.Distinct().ToList();
+            var richTextLocations = GetViewLocations(BlockType.RichText);
+            if (richTextLocations?.Any() == true)
+                locations.AddRange(richTextLocations);
 
             return locations;
         }

@@ -6,7 +6,8 @@ import { UmbLitElement } from "@umbraco-cms/backoffice/lit-element";
 import { observeMultiple } from "@umbraco-cms/backoffice/observable-api";
 import { UMB_PROPERTY_CONTEXT, UMB_PROPERTY_DATASET_CONTEXT } from "@umbraco-cms/backoffice/property";
 import { tryExecuteAndNotify } from "@umbraco-cms/backoffice/resources";
-import { BlockPreviewService, PreviewListMarkupData } from "../api";
+import { BlockPreviewService, PreviewListBlockData } from "../api";
+import { UmbContentTypeModel } from "@umbraco-cms/backoffice/content-type";
 
 const elementName = "block-list-preview";
 
@@ -19,7 +20,7 @@ export class BlockListPreviewCustomView
     htmlMarkup: string | undefined = "";
 
     @state()
-    documentUnique?: string = '';
+    documentTypeUnique?: string = '';
 
     @state()
     blockEditorAlias?: string = '';
@@ -31,22 +32,25 @@ export class BlockListPreviewCustomView
     workspaceEditContentPath?: string;
 
     @state()
-    private _value: UmbBlockListValueModel = {
+    contentElementType: UmbContentTypeModel | undefined;
+
+    @state()
+    private _blockListValue: UmbBlockListValueModel = {
         layout: {},
         contentData: [],
         settingsData: []
     }
 
     @property({ attribute: false })
-    public set value(value: UmbBlockListValueModel | undefined) {
+    public set blockListValue(value: UmbBlockListValueModel | undefined) {
         const buildUpValue: Partial<UmbBlockListValueModel> = value ? { ...value } : {};
         buildUpValue.layout ??= {};
         buildUpValue.contentData ??= [];
         buildUpValue.settingsData ??= [];
-        this._value = buildUpValue as UmbBlockListValueModel;
+        this._blockListValue = buildUpValue as UmbBlockListValueModel;
     }
-    public get value(): UmbBlockListValueModel {
-        return this._value;
+    public get blockListValue(): UmbBlockListValueModel {
+        return this._blockListValue;
     }
 
     constructor() {
@@ -65,38 +69,46 @@ export class BlockListPreviewCustomView
         });
 
         this.consumeContext(UMB_DOCUMENT_WORKSPACE_CONTEXT, (context) => {
-            this.observe(context.unique, async (unique) => {
-                this.documentUnique = unique;
+            this.observe(context.contentTypeUnique, async (unique) => {
+                this.documentTypeUnique = unique;
                 await this.#renderBlockPreview();
             });
         });
 
         this.consumeContext(UMB_BLOCK_LIST_ENTRY_CONTEXT, (context) => {
             this.observe(
-                observeMultiple([context.workspaceEditContentPath, context.content, context.settings, context.layout]),
-                async ([workspaceEditContentPath, content, settings, layout]) => {
+                observeMultiple([context.workspaceEditContentPath, context.content, context.settings, context.layout, context.contentElementType]),
+                async ([workspaceEditContentPath, content, settings, layout, contentElementType]) => {
+                    this.contentElementType = contentElementType;
                     this.workspaceEditContentPath = workspaceEditContentPath;
 
-                    this._value = {
-                        ...this._value,
+                    this._blockListValue = {
+                        ...this._blockListValue,
                         contentData: [content!],
                         settingsData: [settings!],
                         layout: { ["Umbraco.BlockList"]: [layout!] }
                     }
 
                     await this.#renderBlockPreview();
-                },
-                'renderBlockPreview',
-            );
+                });
         });
     }
 
     async #renderBlockPreview() {
-        if (!this.blockEditorAlias || !this.value.contentData || !this.value.layout) return;
+        if (!this.documentTypeUnique ||
+            !this.blockEditorAlias ||
+            !this.contentElementType || 
+            !this.blockListValue.contentData ||
+            !this.blockListValue.layout) return;
 
-        const previewData: PreviewListMarkupData = { blockEditorAlias: this.blockEditorAlias, culture: this.culture, requestBody: JSON.stringify(this.value) };
+        const previewData: PreviewListBlockData = {
+            blockEditorAlias: this.blockEditorAlias,
+            contentElementAlias: this.contentElementType.alias,
+            culture: this.culture,
+            requestBody: JSON.stringify(this.blockListValue)
+        };
 
-        const { data } = await tryExecuteAndNotify(this, BlockPreviewService.previewListMarkup(previewData));
+        const { data } = await tryExecuteAndNotify(this, BlockPreviewService.previewListBlock(previewData));
 
         if (data) this.htmlMarkup = data;
     }

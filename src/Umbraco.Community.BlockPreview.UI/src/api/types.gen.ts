@@ -2817,8 +2817,9 @@ export type WebhookResponseModel = {
     events: Array<(WebhookEventResponseModel)>;
 };
 
-export type PreviewGridMarkupData = {
+export type PreviewGridBlockData = {
     blockEditorAlias?: string;
+    contentElementAlias?: string;
     contentUdi?: string;
     culture?: string;
     documentTypeUnique?: string;
@@ -2826,18 +2827,20 @@ export type PreviewGridMarkupData = {
     settingsUdi?: string;
 };
 
-export type PreviewGridMarkupResponse = string;
+export type PreviewGridBlockResponse = string;
 
-export type PreviewListMarkupData = {
+export type PreviewListBlockData = {
     blockEditorAlias?: string;
+    contentElementAlias?: string;
     culture?: string;
     requestBody?: string;
 };
 
-export type PreviewListMarkupResponse = string;
+export type PreviewListBlockResponse = string;
 
 export type PreviewRichTextMarkupData = {
     blockEditorAlias?: string;
+    contentElementAlias?: string;
     culture?: string;
     requestBody?: string;
 };
@@ -5284,7 +5287,7 @@ export type GetWebhookEventsResponse = PagedWebhookEventModel;
 export type $OpenApiTs = {
     '/umbraco/management/api/v1/block-preview/preview/grid': {
         post: {
-            req: PreviewGridMarkupData;
+            req: PreviewGridBlockData;
             res: {
                 /**
                  * OK
@@ -5303,7 +5306,7 @@ export type $OpenApiTs = {
     };
     '/umbraco/management/api/v1/block-preview/preview/list': {
         post: {
-            req: PreviewListMarkupData;
+            req: PreviewListBlockData;
             res: {
                 /**
                  * OK

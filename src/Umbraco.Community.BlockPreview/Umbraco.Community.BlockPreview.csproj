@@ -58,4 +58,8 @@
 			<ReferenceOutputAssembly>False</ReferenceOutputAssembly>
 		</ProjectReference>
 	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="NotificationHandlers\" />
+	</ItemGroup>
 </Project>
