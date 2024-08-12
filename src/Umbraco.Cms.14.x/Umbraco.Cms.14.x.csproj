@@ -5,6 +5,31 @@
 		<Nullable>enable</Nullable>
 		<RootNamespace>Umbraco.Cms._14.x</RootNamespace>
 	</PropertyGroup>
+	<ItemGroup>
+	  <Content Include="wwwroot\media\2kgnqe01\thomas-griesbeck-bs-uxe8wu5y-unsplash.jpg" />
+	  <Content Include="wwwroot\media\4aonipek\hossein-nasr-wr56ynk67uc-unsplash.jpg" />
+	  <Content Include="wwwroot\media\5jmfns3r\tiago-alexandre-lopes-5vdftgpwv2g-unsplash.jpg" />
+	  <Content Include="wwwroot\media\at2pdc3c\geran-de-klerk-qzgn45hsen0-unsplash.jpg" />
+	  <Content Include="wwwroot\media\c1ghewgm\casey-horner-wkjiek4qsnk-unsplash.jpg" />
+	  <Content Include="wwwroot\media\ch1dsasu\ed-259-xcri6cpkkjs-unsplash.jpg" />
+	  <Content Include="wwwroot\media\etrps01s\scott-webb-_k-qkkbn7ds-unsplash.jpg" />
+	  <Content Include="wwwroot\media\hsdhddlz\meiying-ng-orwkd-iwgqg-unsplash.jpg" />
+	  <Content Include="wwwroot\media\k31oq3tc\hossein-nasr-uj99hdy2mmw-unsplash.jpg" />
+	  <Content Include="wwwroot\media\lgsbnjbc\collin-clyne-zsuely56fzu-unsplash.jpg" />
+	  <Content Include="wwwroot\media\lsenk53v\jay-mantri-qkfxq3x-ybi-unsplash.jpg" />
+	  <Content Include="wwwroot\media\nn1lpby1\yoal-desurmont-jqgsm3b9fpo-unsplash.jpg" />
+	  <Content Include="wwwroot\media\oaqnjquh\hossein-nasr-vmst7pnoto-unsplash.jpg" />
+	  <Content Include="wwwroot\media\pjqb4wit\hossein-nasr-vwzdwriw3xu-unsplash.jpg" />
+	  <Content Include="wwwroot\media\ravpjeo3\hossein-nasr-2nuu_j3zgke-unsplash.jpg" />
+	  <Content Include="wwwroot\media\rxehp51j\geran-de-klerk-wjkc3xzjsxw-unsplash.jpg" />
+	  <Content Include="wwwroot\media\vffn4cry\hernan-lucio-gjfvhkuhdsi-unsplash.jpg" />
+	  <Content Include="wwwroot\media\wi4jgqzj\jay-mantri-tfyi0qox08c-unsplash.jpg" />
+	  <Content Include="wwwroot\media\xo3oadch\collin-clyne-eg8_h52znw0-unsplash.jpg" />
+	  <Content Include="wwwroot\media\yo2fodpb\bosco-shots-slr66yjpsoi-unsplash.jpg" />
+	  <Content Include="wwwroot\media\yrtkazin\merve-sehirli-nasir-r_slzigonz4-unsplash.jpg" />
+	  <Content Include="wwwroot\media\zmenzklu\simone-hutsch-l8fyk9rs-ou-unsplash.jpg" />
+	  <Content Include="wwwroot\media\zxelh4yi\grant-ritchie-fbkrqhnlqoy-unsplash.jpg" />
+	</ItemGroup>
 
 	<ItemGroup>
 		<PackageReference Include="Umbraco.Cms" Version="14.2.0-rc" />
