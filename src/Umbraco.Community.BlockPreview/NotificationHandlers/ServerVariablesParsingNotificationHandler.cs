@@ -19,8 +19,14 @@ namespace Umbraco.Community.BlockPreview.NotificationHandlers
         {
             notification.ServerVariables.Add("UmbracoCommunityBlockPreview", new
             {
-                PreviewApi = _linkGenerator.GetPathByAction(nameof(BlockPreviewApiController.PreviewMarkup),
-                ControllerExtensions.GetControllerName<BlockPreviewApiController>())
+                PreviewGridApi = _linkGenerator.GetPathByAction(nameof(BlockPreviewApiController.PreviewGridBlock),
+                ControllerExtensions.GetControllerName<BlockPreviewApiController>()),
+                PreviewListApi = _linkGenerator.GetPathByAction(nameof(BlockPreviewApiController.PreviewGridBlock),
+ControllerExtensions.GetControllerName<BlockPreviewApiController>()),
+#if NET8_0
+                PreviewRichTextApi = _linkGenerator.GetPathByAction(nameof(BlockPreviewApiController.PreviewRichTextMarkup),
+ControllerExtensions.GetControllerName<BlockPreviewApiController>())
+#endif
             });
         }
     }

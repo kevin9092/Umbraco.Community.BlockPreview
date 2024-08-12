@@ -32,12 +32,7 @@ namespace Umbraco.Community.BlockPreview
                 throw new InvalidOperationException($"Expected {nameof(DefaultViewComponentHelper)} when resolving {nameof(IViewComponentHelperWrapper)}");
             });
 
-            builder.Services.AddScoped<IBackOfficePreviewService, BackOfficeListPreviewService>();
-            builder.Services.AddScoped<IBackOfficeListPreviewService, BackOfficeListPreviewService>();
-            builder.Services.AddScoped<IBackOfficeGridPreviewService, BackOfficeGridPreviewService>();
-#if NET8_0
-            builder.Services.AddScoped<IBackOfficeRtePreviewService, BackOfficeRtePreviewService>();
-#endif
+            builder.Services.AddScoped<IBlockPreviewService, BlockPreviewService>();
             builder.Services.AddScoped<ContextCultureService>();
 
             builder.Services.ConfigureOptions<BlockViewEngineOptionsSetup>();
