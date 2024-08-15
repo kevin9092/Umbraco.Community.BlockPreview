@@ -14,7 +14,7 @@
 
             $scope.cacheBuster = Umbraco.Sys.ServerVariables.application.cacheBuster;
 
-            $scope.id = current.id;
+            $scope.documentTypeKey = current.documentType.key;
             $scope.loading = true;
             $scope.markup = $sce.trustAsHtml('<div class="preview-alert preview-alert-info">Loading preview</div>');
 
@@ -23,13 +23,27 @@
             var parent = $scope.$parent;
 
             $scope.isGrid = false;
+            $scope.isList = false;
             $scope.isRte = false;
+
+            debugger;
+            $scope.contentElementAlias = $scope.block.content.contentTypeAlias;
+            $scope.contentUdi = $scope.block.content.udi;
+            $scope.settingsUdi = $scope.block.settingsData?.udi || '';
 
             while (parent.$parent) {
                 if (parent.vm) {
                     if (parent.vm.constructor.name == 'BlockGridController') {
-                        $scope.blockEditorAlias = parent.vm.model.editor;
+                        $scope.blockEditorAlias = parent.vm.model.alias;
+                        $scope.modelValue = parent.vm.model.value;
                         $scope.isGrid = true;
+                        break;
+                    }
+
+                    if (parent.vm.constructor.name == 'BlockListController') {
+                        $scope.blockEditorAlias = parent.vm.model.alias;
+                        $scope.modelValue = parent.vm.model.value;
+                        $scope.isList = true;
                         break;
                     }
                 }
@@ -44,20 +58,48 @@
                 parent = parent.$parent;
             }
 
-            function loadPreview(content, settings) {
+            function loadPreview() {
                 $scope.markup = $sce.trustAsHtml('<div class="preview-alert preview-alert-info">Loading preview</div>');
                 $scope.loading = true;
 
-                var formattedBlockData = {
-                    layout: $scope.block.layout,
-                    contentData: [content || $scope.block.data],
-                    settingsData: [settings || $scope.block.settingsData]
-                };
+                if ($scope.isGrid) {
+                    previewResource.getGridPreview(
+                        $scope.modelValue,
+                        $scope.blockEditorAlias,
+                        $scope.contentElementAlias,
+                        $scope.language,
+                        $scope.documentTypeKey,
+                        $scope.contentUdi,
+                        $scope.settingsUdi)
+                            .then(function (data) {
+                                $scope.markup = $sce.trustAsHtml(data);
+                                $scope.loading = false;
+                            });
+                }
 
-                previewResource.getPreview(formattedBlockData, $scope.id, $scope.blockEditorAlias, $scope.isGrid, $scope.isRte, $scope.language).then(function (data) {
-                    $scope.markup = $sce.trustAsHtml(data);
-                    $scope.loading = false;
-                });
+                if ($scope.isList) {
+                    previewResource.getListPreview(
+                        $scope.modelValue,
+                        $scope.blockEditorAlias,
+                        $scope.contentElementAlias,
+                        $scope.language)
+                        .then(function (data) {
+                            $scope.markup = $sce.trustAsHtml(data);
+                            $scope.loading = false;
+                        });
+                }
+
+                if ($scope.isRte) {
+                    previewResource.getRichTextPreview(
+                        $scope.modelValue,
+                        $scope.blockEditorAlias,
+                        $scope.contentElementAlias,
+                        $scope.language)
+                        .then(function (data) {
+                            $scope.markup = $sce.trustAsHtml(data);
+                            $scope.loading = false;
+                        });
+                }
             }
 
             loadPreview($scope.block.data, $scope.block.settingsData);
