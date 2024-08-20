@@ -26,7 +26,6 @@
             $scope.isList = false;
             $scope.isRte = false;
 
-            debugger;
             $scope.contentElementAlias = $scope.block.content.contentTypeAlias;
             $scope.contentUdi = $scope.block.content.udi;
             $scope.settingsUdi = $scope.block.settingsData?.udi || '';

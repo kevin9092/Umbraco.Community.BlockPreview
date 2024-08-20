@@ -16,8 +16,8 @@
 
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 
-		<VersionPrefix>1.9.1</VersionPrefix>
-		<VersionSuffix></VersionSuffix>
+		<VersionPrefix>1.10.0</VersionPrefix>
+		<VersionSuffix>rc</VersionSuffix>
 		<Authors>Rick Butterfield, Dave Woestenborghs, Matthew Wise</Authors>
 		<Copyright>$([System.DateTime]::UtcNow.ToString(`yyyy`)) © Rick Butterfield</Copyright>
 
