@@ -9,7 +9,11 @@ builder.CreateUmbracoBuilder()
     .AddComposers()
     .AddBlockPreview(options =>
     {
-        options.BlockGrid.Enabled = true;
+        options.BlockGrid = new()
+        {
+            Enabled = true,
+            Stylesheet = "/css/myblockgridlayout.css"
+        };
         options.BlockList.Enabled = true;
     })
     .Build();

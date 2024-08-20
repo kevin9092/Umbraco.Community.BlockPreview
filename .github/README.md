@@ -78,6 +78,7 @@ builder.AddBlockPreview(options =>
       Enabled = true,
       ContentTypes = [],
       ViewLocations = []
+      Stylesheet = ""
   };
 
   options.BlockList = new()
@@ -94,8 +95,9 @@ builder.AddBlockPreview(options =>
   "BlockPreview": {
     "BlockGrid": {
       "Enabled": true,
-      "ContentTypes": [ "richTextBlock" ],
+      "ContentTypes": [],
       "ViewLocations": []
+      "Stylesheet": ""
     },
     "BlockList": {
       "Enabled": false,
@@ -119,6 +121,7 @@ builder.AddBlockPreview(options =>
 | Enabled       | boolean                  | Toggle previews on or off for a given data type.                                                                |
 | ContentTypes  | string[] \| List<string> | A list of content type aliases to enable the previews for. If left blank, all blocks will be enabled.           |
 | ViewLocations | string[] \| List<string> | A list of custom locations to be searched for your partial views. The default paths are included automatically. |
+| Stylesheet    | string                   | Path to a stylesheet that exists in /wwwroot, to be loaded for every block preview                              |
 
 
 

@@ -42,6 +42,13 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Compile Remove="NotificationHandlers\**" />
+	  <Content Remove="NotificationHandlers\**" />
+	  <EmbeddedResource Remove="NotificationHandlers\**" />
+	  <None Remove="NotificationHandlers\**" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<None Include="..\..\.github\assets\icon.png">
 			<Pack>True</Pack>
 			<PackagePath>\</PackagePath>
@@ -57,9 +64,5 @@
 		<ProjectReference Include="..\Umbraco.Community.BlockPreview.UI\Umbraco.Community.BlockPreview.UI.esproj">
 			<ReferenceOutputAssembly>False</ReferenceOutputAssembly>
 		</ProjectReference>
-	</ItemGroup>
-
-	<ItemGroup>
-	  <Folder Include="NotificationHandlers\" />
 	</ItemGroup>
 </Project>

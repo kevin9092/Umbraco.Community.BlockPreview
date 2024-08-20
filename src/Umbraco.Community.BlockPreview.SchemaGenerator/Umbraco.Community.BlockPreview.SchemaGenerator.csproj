@@ -13,6 +13,10 @@
 		<PackageReference Include="CommandLineParser" Version="2.9.1" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <ProjectReference Include="..\Umbraco.Community.BlockPreview\Umbraco.Community.BlockPreview.csproj" />
+	</ItemGroup>
+
 	<PropertyGroup Condition="'$(Configuration)' == 'Release'">
 		<DocumentationFile>bin\Release\$(TargetFramework)\Umbraco.Community.BlockPreview.SchemaGenerator.xml</DocumentationFile>
 	</PropertyGroup>

@@ -8,6 +8,7 @@ import { observeMultiple } from "@umbraco-cms/backoffice/observable-api";
 import { UMB_PROPERTY_CONTEXT, UMB_PROPERTY_DATASET_CONTEXT } from "@umbraco-cms/backoffice/property";
 import { tryExecuteAndNotify } from "@umbraco-cms/backoffice/resources";
 import { BlockPreviewService, PreviewGridBlockData } from "../api";
+import { BLOCK_PREVIEW_CONTEXT } from "../context/block-preview.context-token";
 
 const elementName = "block-grid-preview";
 
@@ -16,31 +17,25 @@ export class BlockGridPreviewCustomView
     extends UmbLitElement
     implements UmbBlockEditorCustomViewElement {
 
-    @state()
-    htmlMarkup: string | undefined = "";
+    _styleElement?: HTMLLinkElement;
 
     @state()
+    htmlMarkup: string | undefined = '';
+
     documentTypeUnique?: string = '';
 
-    @state()
-    contentUdi: string | undefined = "";
+    contentUdi: string | undefined = '';
 
-    @state()
     settingsUdi: string | undefined | null = null;
 
-    @state()
     blockEditorAlias?: string = '';
 
-    @state()
     culture?: string = '';
 
-    @state()
     workspaceEditContentPath?: string;
 
-    @state()
     contentElementType: UmbContentTypeModel | undefined;
 
-    @state()
     private _blockGridValue: UmbBlockGridValueModel = {
         layout: {},
         contentData: [],
@@ -62,6 +57,29 @@ export class BlockGridPreviewCustomView
     constructor() {
         super();
 
+        this.consumeContext(BLOCK_PREVIEW_CONTEXT, async (context) => {
+            this.observe(context.settings, (settings) => {
+                if (settings?.blockGrid?.stylesheet) {
+                    this._styleElement = document.createElement('link');
+                    this._styleElement.rel = 'stylesheet';
+                    this._styleElement.href = settings?.blockGrid?.stylesheet as string;
+                }
+            });
+        });
+
+        this.consumeContext(UMB_PROPERTY_DATASET_CONTEXT, async (instance) => {
+            this.culture = instance.getVariantId().culture ?? "";
+        });
+
+        this.consumeContext(UMB_DOCUMENT_WORKSPACE_CONTEXT, (context) => {
+            this.observe(context.contentTypeUnique, async (unique) => {
+                this.documentTypeUnique = unique;
+                this.#observeBlockGridValue();
+            });
+        });
+    }
+
+    #observeBlockGridValue(): void {
         this.consumeContext(UMB_PROPERTY_CONTEXT, (context) => {
             this.observe(
                 observeMultiple([context.alias, context.value]),
@@ -74,19 +92,13 @@ export class BlockGridPreviewCustomView
                         settingsData: value.settingsData!,
                         layout: value.layout!
                     }
+
+                    this.#observeBlockValue();
                 });
         });
+    }
 
-        this.consumeContext(UMB_PROPERTY_DATASET_CONTEXT, async (instance) => {
-            this.culture = instance.getVariantId().culture ?? "";
-        });
-
-        this.consumeContext(UMB_DOCUMENT_WORKSPACE_CONTEXT, (context) => {
-            this.observe(context.contentTypeUnique, async (unique) => {
-                this.documentTypeUnique = unique;
-            });
-        });
-
+    #observeBlockValue(): void {
         this.consumeContext(UMB_BLOCK_GRID_ENTRY_CONTEXT, (context) => {
             this.observe(
                 observeMultiple([context.contentUdi, context.settingsUdi, context.workspaceEditContentPath, context.contentElementType]),
@@ -95,7 +107,7 @@ export class BlockGridPreviewCustomView
                     this.settingsUdi = settingsUdi ?? undefined;
                     this.contentElementType = contentElementType;
                     this.workspaceEditContentPath = workspaceEditContentPath;
-                    
+
                     await this.#renderBlockPreview();
                 });
         });
@@ -122,13 +134,16 @@ export class BlockGridPreviewCustomView
         };
 
         const { data } = await tryExecuteAndNotify(this, BlockPreviewService.previewGridBlock(previewData));
-        
-        if (data) this.htmlMarkup = data;
+
+        if (data) {
+            this.htmlMarkup = data;
+        }
     }
 
     render() {
         if (this.htmlMarkup !== "") {
             return html`
+                ${this._styleElement}
                 <a href=${ifDefined(this.workspaceEditContentPath)}>
                     ${unsafeHTML(this.htmlMarkup)}
                 </a>`;

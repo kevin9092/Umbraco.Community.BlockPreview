@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Umbraco.Community.BlockPreview.SchemaGenerator
+﻿namespace Umbraco.Community.BlockPreview.SchemaGenerator
 {
     internal class AppSettings
     {
@@ -12,12 +10,5 @@ namespace Umbraco.Community.BlockPreview.SchemaGenerator
             public BlockTypeSettings BlockList { get; set; }
             public BlockTypeSettings RichText { get; set; }
         }
-    }
-
-    public class BlockTypeSettings
-    {
-        public bool Enabled { get; set; }
-        public List<string> ViewLocations { get; set; }
-        public List<string> ContentTypes { get; set; }
     }
 }

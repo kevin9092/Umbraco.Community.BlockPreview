@@ -48,7 +48,14 @@
 
 
 /**** Custom additions to the default Grid Layout Stylehseet: ****/
-
+:root, :host {
+    --umb-block-grid--areas-column-gap: 60px;
+    --umb-block-grid--areas-row-gap: 60px;
+    --umb-block-grid--column-gap: 60px;
+    --umb-block-grid--row-gap: 60px;
+    --my-container-max-width: 1200px;
+    --my-container-padding: 0 20px;
+}
 
 /* additional CSS options for area-container and areas: */
 .umb-block-grid__area-container, .umb-block-grid__block--view::part(area-container) {
@@ -56,8 +63,6 @@
     padding: var(--my-container-padding);
     margin-left: auto;
     margin-right: auto;
-    --umb-block-grid--areas-column-gap: 60px;
-    --umb-block-grid--areas-row-gap: 60px;
 }
 
 .umb-block-grid__area {
@@ -65,8 +70,6 @@
 }
 
 .umb-block-grid__layout-item[data-content-element-type-alias="oneColumnSectionBlock"] .umb-block-grid__layout-container {
-    --umb-block-grid--column-gap: 60px;
-    --umb-block-grid--row-gap: 60px;
 }
 
 
@@ -85,8 +88,6 @@
 
 .umb-block-grid {
     container-type: inline-size;
-    --my-container-max-width: 1200px;
-    --my-container-padding: 0 20px;
 }
 @container (min-width: 720px) {
     .umb-block-grid__layout-container {

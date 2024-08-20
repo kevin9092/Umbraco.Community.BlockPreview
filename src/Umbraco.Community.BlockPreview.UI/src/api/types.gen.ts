@@ -83,6 +83,7 @@ export type BlockTypeSettings = {
     enabled: boolean;
     viewLocations?: Array<(string)> | null;
     contentTypes?: Array<(string)> | null;
+    stylesheet?: string | null;
 };
 
 export type CalculatedUserStartNodesResponseModel = {

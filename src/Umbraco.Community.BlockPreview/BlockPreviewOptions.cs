@@ -73,5 +73,6 @@ namespace Umbraco.Community.BlockPreview
         public bool Enabled { get; set; } = false;
         public List<string>? ViewLocations { get; set; } = [];
         public List<string>? ContentTypes { get; set; } = [];
+        public string? Stylesheet { get; set; }
     }
 }
