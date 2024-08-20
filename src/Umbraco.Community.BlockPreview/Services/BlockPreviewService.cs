@@ -82,6 +82,8 @@ namespace Umbraco.Community.BlockPreview.Services
             if (contentData == null)
                 return string.Empty;
 
+            ConvertNestedValuesToString(contentData);
+
             IPublishedElement? contentElement = ConvertToElement(contentData, true);
 
             BlockItemData? settingsData = settingsUdiParsed != null

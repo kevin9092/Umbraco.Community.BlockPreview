@@ -16,7 +16,6 @@
         return resource;
 
         function getGridPreview(blockData, blockEditorAlias, contentElementAlias, culture, documentTypeKey, contentUdi, settingsUdi) {
-            debugger;
             culture = culture || '';
 
             return umbRequestHelper.resourcePromise(
@@ -26,7 +25,6 @@
         };
 
         function getListPreview(blockData, blockEditorAlias, contentElementAlias, culture) {
-            debugger;
             culture = culture || '';
 
             return umbRequestHelper.resourcePromise(
@@ -36,7 +34,6 @@
         };
 
         function getRichTextPreview(blockData, blockEditorAlias, contentElementAlias, culture) {
-            debugger;
             culture = culture || '';
 
             return umbRequestHelper.resourcePromise(
