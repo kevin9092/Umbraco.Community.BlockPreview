@@ -132,7 +132,12 @@ namespace Umbraco.Community.BlockPreview.Services
 
             IPropertyType? property = documentType.PropertyTypes.FirstOrDefault(x => x.Alias.Equals(blockEditorAlias));
             if (property == null)
-                return string.Empty;
+            {
+                property = documentType.CompositionPropertyTypes.FirstOrDefault(x => x.Alias.Equals(blockEditorAlias));
+
+                if (property == null)
+                    return string.Empty;
+            }
 
             IDataType? dataType = await _dataTypeService.GetAsync(property.DataTypeKey);
             if (dataType == null)
