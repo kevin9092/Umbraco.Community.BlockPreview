@@ -8,17 +8,11 @@
 	<ItemGroup>
 	  <Content Remove="appsettings-schema.blockpreview.json" />
 	</ItemGroup>
-	<ItemGroup>
-	  <None Include="appsettings-schema.blockpreview.json">
-	    <PackagePath>\</PackagePath>
-	    <Pack>true</Pack>
-	  </None>
-	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Umbraco.Cms" Version="14.2.0-rc3" />
-		<PackageReference Include="Umbraco.Cms.Core" Version="14.2.0-rc3" />
-		<PackageReference Include="Umbraco.Cms.StaticAssets" Version="14.2.0-rc3" />
+		<PackageReference Include="Umbraco.Cms" Version="14.2.0" />
+		<PackageReference Include="Umbraco.Cms.Core" Version="14.2.0" />
+		<PackageReference Include="Umbraco.Cms.StaticAssets" Version="14.2.0" />
 		<PackageReference Include="uSync" Version="14.0.0" />
 	</ItemGroup>
 

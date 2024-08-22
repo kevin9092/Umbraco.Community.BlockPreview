@@ -20,13 +20,13 @@ The Umbraco v14.2+ version of this package is [available via NuGet](https://www.
 To install the package, you can use either .NET CLI:
 
 ```
-dotnet add package Umbraco.Community.BlockPreview --version 2.0.0-rc3
+dotnet add package Umbraco.Community.BlockPreview --version 2.0.0
 ```
 
 or the NuGet Package Manager:
 
 ```
-Install-Package Umbraco.Community.BlockPreview -Version 2.0.0-rc3
+Install-Package Umbraco.Community.BlockPreview -Version 2.0.0
 ```
 
 ## Setup
@@ -121,8 +121,7 @@ builder.AddBlockPreview(options =>
 | Enabled       | boolean                  | Toggle previews on or off for a given data type.                                                                |
 | ContentTypes  | string[] \| List<string> | A list of content type aliases to enable the previews for. If left blank, all blocks will be enabled.           |
 | ViewLocations | string[] \| List<string> | A list of custom locations to be searched for your partial views. The default paths are included automatically. |
-| Stylesheet    | string                   | Path to a stylesheet that exists in /wwwroot, to be loaded for every block preview                              |
-
+| Stylesheet    | string                   | **`BlockGrid` only** - path to a stylesheet that exists in /wwwroot, to be loaded for every block preview       |
 
 
 ## Usage
