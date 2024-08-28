@@ -1,10 +1,12 @@
 ﻿angular.module('umbraco').controller('Umbraco.Community.BlockPreview.Controllers.BlockPreviewController',
     ['$scope', '$sce', '$timeout', 'editorState', 'Umbraco.Community.BlockPreview.Resources.PreviewResource',
         function ($scope, $sce, $timeout, editorState, previewResource) {
-            var current = editorState.getCurrent()
+            var current = editorState.getCurrent();
             var active = current.variants.find(function (v) {
                 return v.active;
             });
+
+            $scope.nodeKey = current.key;
 
             if (active !== null) {
                 if (active.language !== null) {
@@ -49,6 +51,12 @@
 
                 if (parent.model) {
                     if (parent.model.constructor.name == 'umbRteBlockController') {
+                        $scope.modelValue = {
+                            contentData: [$scope.block.data],
+                            settingsData: [$scope.block.settingsData],
+                            layout: $scope.block.layout
+                        }
+
                         $scope.isRte = true;
                         break;
                     }
@@ -63,6 +71,7 @@
 
                 if ($scope.isGrid) {
                     previewResource.getGridPreview(
+                        $scope.nodeKey,
                         $scope.modelValue,
                         $scope.blockEditorAlias,
                         $scope.contentElementAlias,
@@ -78,10 +87,12 @@
 
                 if ($scope.isList) {
                     previewResource.getListPreview(
+                        $scope.nodeKey,
                         $scope.modelValue,
                         $scope.blockEditorAlias,
                         $scope.contentElementAlias,
-                        $scope.language)
+                        $scope.language,
+                        $scope.documentTypeKey)
                         .then(function (data) {
                             $scope.markup = $sce.trustAsHtml(data);
                             $scope.loading = false;
@@ -90,10 +101,12 @@
 
                 if ($scope.isRte) {
                     previewResource.getRichTextPreview(
+                        $scope.nodeKey,
                         $scope.modelValue,
                         $scope.blockEditorAlias,
                         $scope.contentElementAlias,
-                        $scope.language)
+                        $scope.language,
+                        $scope.documentTypeKey)
                         .then(function (data) {
                             $scope.markup = $sce.trustAsHtml(data);
                             $scope.loading = false;

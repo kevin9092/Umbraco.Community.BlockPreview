@@ -10,6 +10,7 @@ using Umbraco.Cms.Core.Web;
 using Umbraco.Cms.Web.BackOffice.Controllers;
 using Umbraco.Community.BlockPreview.Interfaces;
 using Umbraco.Community.BlockPreview.Services;
+using Umbraco.Extensions;
 
 namespace Umbraco.Community.BlockPreview.Controllers
 {
@@ -62,6 +63,7 @@ namespace Umbraco.Community.BlockPreview.Controllers
         [ProducesResponseType(typeof(string), 200)]
         public async Task<IActionResult> PreviewGridBlock(
             [FromBody] BlockValue blockData,
+            [FromQuery] Guid nodeKey = default,
             [FromQuery] string blockEditorAlias = "",
             [FromQuery] string contentElementAlias = "",
             [FromQuery] string? culture = "",
@@ -73,9 +75,11 @@ namespace Umbraco.Community.BlockPreview.Controllers
 
             try
             {
-                string? currentCulture = await GetCurrentCulture(culture);
+                IPublishedContent? content = GetPublishedContent(nodeKey, documentTypeKey);
 
-                await SetupPublishedRequest(currentCulture);
+                string? currentCulture = GetCurrentCulture(culture, content);
+
+                await SetupPublishedRequest(currentCulture, content);
 
                 markup = await _blockPreviewService.RenderGridBlock(blockData, ControllerContext, blockEditorAlias, documentTypeKey, contentUdi, settingsUdi);
             }
@@ -101,17 +105,22 @@ namespace Umbraco.Community.BlockPreview.Controllers
         [ProducesResponseType(typeof(string), 200)]
         public async Task<IActionResult> PreviewListBlock(
             [FromBody] BlockValue blockData,
+            [FromQuery] Guid nodeKey = default,
             [FromQuery] string blockEditorAlias = "",
             [FromQuery] string contentElementAlias = "",
-            [FromQuery] string culture = "")
+            [FromQuery] string culture = "",
+            [FromQuery] Guid documentTypeKey = default)
         {
             string markup;
+            _ = culture;
 
             try
             {
-                string? currentCulture = await GetCurrentCulture(culture);
+                IPublishedContent? content = GetPublishedContent(nodeKey, documentTypeKey);
 
-                await SetupPublishedRequest(currentCulture);
+                string? currentCulture = GetCurrentCulture(culture, content);
+
+                await SetupPublishedRequest(currentCulture, content);
 
                 markup = await _blockPreviewService.RenderListBlock(blockData, ControllerContext);
             }
@@ -138,17 +147,21 @@ namespace Umbraco.Community.BlockPreview.Controllers
         [ProducesResponseType(typeof(string), 200)]
         public async Task<IActionResult> PreviewRichTextMarkup(
             [FromBody] BlockValue blockData,
+            [FromQuery] Guid nodeKey = default,
             [FromQuery] string blockEditorAlias = "",
             [FromQuery] string contentElementAlias = "",
-            [FromQuery] string culture = "")
+            [FromQuery] string culture = "",
+            [FromQuery] Guid documentTypeKey = default)
         {
             string markup;
 
             try
             {
-                string? currentCulture = await GetCurrentCulture(culture);
+                IPublishedContent? content = GetPublishedContent(nodeKey, documentTypeKey);
 
-                await SetupPublishedRequest(currentCulture);
+                string? currentCulture = GetCurrentCulture(culture, content);
+
+                await SetupPublishedRequest(currentCulture, content);
 
                 markup = await _blockPreviewService.RenderRichTextBlock(blockData, ControllerContext);
             }
@@ -163,45 +176,57 @@ namespace Umbraco.Community.BlockPreview.Controllers
         }
 #endif
 
-        private async Task<string?> GetCurrentCulture(string? culture)
+        private string GetCurrentCulture(string? culture, IPublishedContent? content = null)
         {
             // if in a culture variant setup also set the correct language.
-            //var currentCulture = string.IsNullOrWhiteSpace(culture)
-            //    ? page.GetCultureFromDomains(_umbracoContextAccessor, _siteDomainMapper)
-            //    : culture;
+            var currentCulture = string.IsNullOrWhiteSpace(culture)
+                ? content?.GetCultureFromDomains(_umbracoContextAccessor, _siteDomainMapper)
+                : culture;
 
-            if (string.IsNullOrEmpty(culture) || culture == "undefined")
-                culture = _localizationService.GetDefaultLanguageIsoCode();
+            if (string.IsNullOrEmpty(currentCulture) || currentCulture == "undefined")
+                currentCulture = _localizationService.GetDefaultLanguageIsoCode();
 
-            return culture;
+            _contextCultureService.SetCulture(currentCulture);
+
+            return currentCulture;
         }
 
-        private async Task SetupPublishedRequest(string? culture)
+        private async Task SetupPublishedRequest(string? culture, IPublishedContent? content = null)
         {
-            // set the published request for the page we are editing in the back office
             if (!_umbracoContextAccessor.TryGetUmbracoContext(out IUmbracoContext? context))
                 return;
 
-            // set the published request
-            var requestBuilder = await _publishedRouter.CreateRequestAsync(new Uri(Request.GetDisplayUrl()));
-            //requestBuilder.SetPublishedContent(page);
+            var requestUrl = new Uri(Request.GetDisplayUrl());
+            var requestBuilder = await _publishedRouter.CreateRequestAsync(requestUrl);
+            
+            if (content != null)
+                requestBuilder.SetPublishedContent(content);
+
             context.PublishedRequest = requestBuilder.Build();
             context.ForcedPreview(true);
-
-            if (culture == null)
-                return;
-
-            _contextCultureService.SetCulture(culture);
         }
 
-        private IPublishedContent? GetPublishedContentForPage(int pageId)
+        private IPublishedContent? GetPublishedContent(Guid? nodeKey = default, Guid? documentTypeKey = default)
         {
             if (!_umbracoContextAccessor.TryGetUmbracoContext(out IUmbracoContext? context))
                 return null;
 
-            // Get page from published cache.
-            // If unpublished, then get it from preview
-            return context.Content?.GetById(pageId) ?? context.Content?.GetById(true, pageId);
+            IPublishedContent? content = null;
+
+            if (nodeKey != default)
+                content = context.Content?.GetById(true, nodeKey.GetValueOrDefault());
+
+            if (content == null)
+            {
+                var contentType = context.Content?.GetContentType(documentTypeKey.GetValueOrDefault());
+                if (contentType != null)
+                {
+                    var cache = context.Content?.GetByContentType(contentType);
+                    return cache?.FirstOrDefault();
+                }
+            }
+
+            return content;
         }
 
         private static string CleanUpMarkup(string markup)

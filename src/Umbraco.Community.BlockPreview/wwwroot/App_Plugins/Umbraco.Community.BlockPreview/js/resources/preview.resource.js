@@ -15,29 +15,52 @@
 
         return resource;
 
-        function getGridPreview(blockData, blockEditorAlias, contentElementAlias, culture, documentTypeKey, contentUdi, settingsUdi) {
+        function getGridPreview(
+            nodeKey,
+            blockData,
+            blockEditorAlias,
+            contentElementAlias,
+            culture,
+            documentTypeKey,
+            contentUdi,
+            settingsUdi)
+        {
             culture = culture || '';
 
             return umbRequestHelper.resourcePromise(
-                $http.post(`${apiGridUrl}?blockEditorAlias=${blockEditorAlias}&contentElementAlias=${contentElementAlias}&documentTypeKey=${documentTypeKey}&contentUdi=${contentUdi}&settingsUdi=${settingsUdi}&culture=${culture}`, blockData),
+                $http.post(`${apiGridUrl}?nodeKey=${nodeKey}&blockEditorAlias=${blockEditorAlias}&contentElementAlias=${contentElementAlias}&documentTypeKey=${documentTypeKey}&contentUdi=${contentUdi}&settingsUdi=${settingsUdi}&culture=${culture}`, blockData),
                 'Failed getting block preview markup'
             );
         };
 
-        function getListPreview(blockData, blockEditorAlias, contentElementAlias, culture) {
+        function getListPreview(
+            nodeKey,
+            blockData,
+            blockEditorAlias,
+            contentElementAlias,
+            culture,
+            documentTypeKey)
+        {
             culture = culture || '';
 
             return umbRequestHelper.resourcePromise(
-                $http.post(`${apiListUrl}?blockEditorAlias=${blockEditorAlias}&contentElementAlias=${contentElementAlias}&culture=${culture}`, blockData),
+                $http.post(`${apiListUrl}?nodeKey=${nodeKey}&blockEditorAlias=${blockEditorAlias}&contentElementAlias=${contentElementAlias}&culture=${culture}&documentTypeKey=${documentTypeKey}`, blockData),
                 'Failed getting block preview markup'
             );
         };
 
-        function getRichTextPreview(blockData, blockEditorAlias, contentElementAlias, culture) {
+        function getRichTextPreview(
+            nodeKey,
+            blockData,
+            blockEditorAlias,
+            contentElementAlias,
+            culture,
+            documentTypeKey)
+        {
             culture = culture || '';
 
             return umbRequestHelper.resourcePromise(
-                $http.post(`${apiRichTextUrl}?blockEditorAlias=${blockEditorAlias}&contentElementAlias=${contentElementAlias}&culture=${culture}`, blockData),
+                $http.post(`${apiRichTextUrl}?nodeKey=${nodeKey}&blockEditorAlias=${blockEditorAlias}&contentElementAlias=${contentElementAlias}&culture=${culture}&documentTypeKey=${documentTypeKey}`, blockData),
                 'Failed getting block preview markup'
             );
         };

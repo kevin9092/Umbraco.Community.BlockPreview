@@ -21,7 +21,7 @@ namespace Umbraco.Community.BlockPreview.NotificationHandlers
             {
                 PreviewGridApi = _linkGenerator.GetPathByAction(nameof(BlockPreviewApiController.PreviewGridBlock),
                 ControllerExtensions.GetControllerName<BlockPreviewApiController>()),
-                PreviewListApi = _linkGenerator.GetPathByAction(nameof(BlockPreviewApiController.PreviewGridBlock),
+                PreviewListApi = _linkGenerator.GetPathByAction(nameof(BlockPreviewApiController.PreviewListBlock),
 ControllerExtensions.GetControllerName<BlockPreviewApiController>()),
 #if NET8_0
                 PreviewRichTextApi = _linkGenerator.GetPathByAction(nameof(BlockPreviewApiController.PreviewRichTextMarkup),
