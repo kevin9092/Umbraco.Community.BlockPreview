@@ -12,6 +12,7 @@ using Umbraco.Cms.Core.Services;
 using Umbraco.Cms.Core.Web;
 using Umbraco.Community.BlockPreview.Interfaces;
 using Umbraco.Community.BlockPreview.Services;
+using Umbraco.Extensions;
 
 namespace Umbraco.Community.BlockPreview.Controllers
 {
@@ -54,23 +55,25 @@ namespace Umbraco.Community.BlockPreview.Controllers
             _blockPreviewSettings = blockPreviewSettings.CurrentValue;
         }
 
-        /// <summary>
-        /// Renders a preview for a grid block using the associated Razor view or ViewComponent.
-        /// </summary>
-        /// <param name="blockData">The JSON content data of the block.</param>
-        /// <param name="blockEditorAlias">The alias of the block editor</param>
-        /// <param name="contentElementAlias">The alias of the content being rendered</param>
-        /// <param name="culture">The current culture</param>
-        /// <param name="documentTypeUnique">The <see cref="Guid"/> that represents the Umbraco node</param>
-        /// <param name="contentUdi">The <see cref="Cms.Core.Udi"/> that represents the content element</param>
-        /// <param name="contentUdi">The <see cref="Cms.Core.Udi"/> that represents the settings element</param>
-        /// <returns>The markup to render in the preview.</returns>
-        [HttpPost("preview/grid")]
+		/// <summary>
+		/// Renders a preview for a grid block using the associated Razor view or ViewComponent.
+		/// </summary>
+		/// <param name="blockData">The JSON content data of the block.</param>
+		/// <param name="nodeKey">The <see cref="Guid"/> that represents the Umbraco node.</param>
+		/// <param name="blockEditorAlias">The alias of the block editor</param>
+		/// <param name="contentElementAlias">The alias of the content being rendered</param>
+		/// <param name="culture">The current culture</param>
+		/// <param name="documentTypeUnique">The <see cref="Guid"/> that represents the Umbraco node</param>
+		/// <param name="contentUdi">The <see cref="Cms.Core.Udi"/> that represents the content element</param>
+		/// <param name="contentUdi">The <see cref="Cms.Core.Udi"/> that represents the settings element</param>
+		/// <returns>The markup to render in the preview.</returns>
+		[HttpPost("preview/grid")]
         [ProducesResponseType(typeof(string), 200)]
         public async Task<IActionResult> PreviewGridBlock(
             [FromBody] string blockData,
+            [FromQuery] Guid nodeKey = default,
             [FromQuery] string blockEditorAlias = "",
-            [FromQuery] string contentElementAlias = "",
+			[FromQuery] string contentElementAlias = "",
             [FromQuery] string? culture = "",
             [FromQuery] Guid documentTypeUnique = default,
             [FromQuery] string contentUdi = "",
@@ -80,9 +83,11 @@ namespace Umbraco.Community.BlockPreview.Controllers
 
             try
             {
-                string? currentCulture = await GetCurrentCulture(culture);
+				IPublishedContent? content = GetPublishedContent(nodeKey, documentTypeUnique);
 
-                await SetupPublishedRequest(currentCulture);
+				string? currentCulture = await GetCurrentCulture(culture, content);
+
+                await SetupPublishedRequest(currentCulture, content);
 
                 markup = await _blockPreviewService.RenderGridBlock(blockData, ControllerContext, blockEditorAlias, documentTypeUnique, contentUdi, settingsUdi);
             }
@@ -96,29 +101,34 @@ namespace Umbraco.Community.BlockPreview.Controllers
             return Ok(cleanMarkup);
         }
 
-        /// <summary>
-        /// Renders a preview for a list block using the associated Razor view or ViewComponent.
-        /// </summary>
-        /// <param name="blockData">The JSON content data of the block.</param>
-        /// <param name="blockEditorAlias">The alias of the block editor</param>
-        /// <param name="contentElementAlias">The alias of the content being rendered</param>
-        /// <param name="culture">The current culture</param>
-        /// <returns>The markup to render in the preview.</returns>
-        [HttpPost("preview/list")]
+		/// <summary>
+		/// Renders a preview for a list block using the associated Razor view or ViewComponent.
+		/// </summary>
+		/// <param name="blockData">The JSON content data of the block.</param>
+		/// <param name="blockEditorAlias">The alias of the block editor</param>
+		/// <param name="contentElementAlias">The alias of the content being rendered</param>
+		/// <param name="culture">The current culture</param>
+		/// <param name="documentTypeUnique">The <see cref="Guid"/> that represents the Umbraco node</param>
+		/// <returns>The markup to render in the preview.</returns>
+		[HttpPost("preview/list")]
         [ProducesResponseType(typeof(string), 200)]
         public async Task<IActionResult> PreviewListBlock(
             [FromBody] string blockData,
+            [FromQuery] Guid nodeKey = default,
             [FromQuery] string blockEditorAlias = "",
             [FromQuery] string contentElementAlias = "",
-            [FromQuery] string culture = "")
-        {
+            [FromQuery] string culture = "",
+            [FromQuery] Guid documentTypeUnique = default)
+		{
             string markup;
 
             try
             {
-                string? currentCulture = await GetCurrentCulture(culture);
+				IPublishedContent? content = GetPublishedContent(nodeKey, documentTypeUnique); 
+                
+                string? currentCulture = await GetCurrentCulture(culture, content);
 
-                await SetupPublishedRequest(currentCulture);
+                await SetupPublishedRequest(currentCulture, content);
 
                 markup = await _blockPreviewService.RenderListBlock(blockData, ControllerContext);
             }
@@ -132,29 +142,34 @@ namespace Umbraco.Community.BlockPreview.Controllers
             return Ok(cleanMarkup);
         }
 
-        /// <summary>
-        /// Renders a preview for a rich text block using the associated Razor view or ViewComponent.
-        /// </summary>
-        /// <param name="blockData">The JSON content data of the block.</param>
-        /// <param name="blockEditorAlias">The alias of the block editor</param>
-        /// <param name="contentElementAlias">The alias of the content being rendered</param>
-        /// <param name="culture">The current culture</param>
-        /// <returns>The markup to render in the preview.</returns>
-        [HttpPost("preview/rte")]
+		/// <summary>
+		/// Renders a preview for a rich text block using the associated Razor view or ViewComponent.
+		/// </summary>
+		/// <param name="blockData">The JSON content data of the block.</param>
+		/// <param name="blockEditorAlias">The alias of the block editor</param>
+		/// <param name="contentElementAlias">The alias of the content being rendered</param>
+		/// <param name="culture">The current culture</param>
+		/// <param name="documentTypeUnique">The <see cref="Guid"/> that represents the Umbraco node</param>
+		/// <returns>The markup to render in the preview.</returns>
+		[HttpPost("preview/rte")]
         [ProducesResponseType(typeof(string), 200)]
         public async Task<IActionResult> PreviewRichTextMarkup(
             [FromBody] string blockData,
+            [FromQuery] Guid nodeKey = default,
             [FromQuery] string blockEditorAlias = "",
             [FromQuery] string contentElementAlias = "",
-            [FromQuery] string culture = "")
+            [FromQuery] string culture = "",
+            [FromQuery] Guid documentTypeUnique = default)
         {
-            string markup;
+			string markup;
 
             try
             {
-                string? currentCulture = await GetCurrentCulture(culture);
+				IPublishedContent? content = GetPublishedContent(nodeKey, documentTypeUnique); 
+                
+                string? currentCulture = await GetCurrentCulture(culture, content);
 
-                await SetupPublishedRequest(currentCulture);
+                await SetupPublishedRequest(currentCulture, content);
 
                 markup = await _blockPreviewService.RenderRichTextBlock(blockData, ControllerContext);
             }
@@ -180,46 +195,58 @@ namespace Umbraco.Community.BlockPreview.Controllers
             return _blockPreviewSettings;
         }
 
-        private async Task<string?> GetCurrentCulture(string? culture)
-        {
-            // if in a culture variant setup also set the correct language.
-            //var currentCulture = string.IsNullOrWhiteSpace(culture)
-            //    ? page.GetCultureFromDomains(_umbracoContextAccessor, _siteDomainMapper)
-            //    : culture;
+        private async Task<string?> GetCurrentCulture(string? culture, IPublishedContent? content = null)
+		{
+			// if in a culture variant setup also set the correct language.
+			var currentCulture = string.IsNullOrWhiteSpace(culture)
+				? content?.GetCultureFromDomains(_umbracoContextAccessor, _siteDomainMapper)
+				: culture;
 
-            if (string.IsNullOrEmpty(culture) || culture == "undefined")
-                culture = await _languageService.GetDefaultIsoCodeAsync();
+			if (string.IsNullOrEmpty(currentCulture) || culture == "undefined")
+				currentCulture = await _languageService.GetDefaultIsoCodeAsync();
 
-            return culture;
+			_contextCultureService.SetCulture(currentCulture);
+
+			return currentCulture;
         }
 
-        private async Task SetupPublishedRequest(string? culture)
-        {
-            // set the published request for the page we are editing in the back office
+        private async Task SetupPublishedRequest(string? culture, IPublishedContent? content = null)
+		{
             if (!_umbracoContextAccessor.TryGetUmbracoContext(out IUmbracoContext? context))
                 return;
 
-            // set the published request
-            var requestBuilder = await _publishedRouter.CreateRequestAsync(new Uri(Request.GetDisplayUrl()));
-            //requestBuilder.SetPublishedContent(page);
-            context.PublishedRequest = requestBuilder.Build();
+			var requestUrl = new Uri(Request.GetDisplayUrl());
+			var requestBuilder = await _publishedRouter.CreateRequestAsync(requestUrl);
+
+            if (content != null)
+                requestBuilder.SetPublishedContent(content);
+
+			context.PublishedRequest = requestBuilder.Build();
             context.ForcedPreview(true);
-
-            if (culture == null)
-                return;
-
-            _contextCultureService.SetCulture(culture);
         }
 
-        private IPublishedContent? GetPublishedContentForPage(Guid pageKey)
-        {
-            if (!_umbracoContextAccessor.TryGetUmbracoContext(out IUmbracoContext? context))
-                return null;
+        private IPublishedContent? GetPublishedContent(Guid? nodeKey = default, Guid? documentTypeUnique = default)
+		{
+			if (!_umbracoContextAccessor.TryGetUmbracoContext(out IUmbracoContext? context))
+				return null;
 
-            // Get page from published cache.
-            // If unpublished, then get it from preview
-            return context.Content?.GetById(pageKey) ?? context.Content?.GetById(true, pageKey);
-        }
+			IPublishedContent? content = null;
+
+			if (nodeKey != default)
+				content = context.Content?.GetById(true, nodeKey.GetValueOrDefault());
+
+			if (content == null)
+			{
+				var contentType = context.Content?.GetContentType(documentTypeUnique.GetValueOrDefault());
+				if (contentType != null)
+				{
+					var cache = context.Content?.GetByContentType(contentType);
+					return cache?.FirstOrDefault();
+				}
+			}
+
+			return content;
+		}
 
         private static string CleanUpMarkup(string markup)
         {

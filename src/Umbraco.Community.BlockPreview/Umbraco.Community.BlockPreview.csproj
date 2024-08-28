@@ -16,7 +16,7 @@
 
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 
-		<VersionPrefix>2.0.1</VersionPrefix>
+		<VersionPrefix>2.0.2</VersionPrefix>
 		<VersionSuffix></VersionSuffix>
 		<Authors>Rick Butterfield, Dave Woestenborghs, Matthew Wise</Authors>
 		<Copyright>$([System.DateTime]::UtcNow.ToString(`yyyy`)) © Rick Butterfield</Copyright>

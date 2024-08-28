@@ -73,8 +73,15 @@ export type AvailableMemberTypeCompositionResponseModel = {
     isCompatible: boolean;
 };
 
+export type BlockGridSettings = {
+    enabled: boolean;
+    viewLocations?: Array<(string)> | null;
+    contentTypes?: Array<(string)> | null;
+    stylesheet?: string | null;
+};
+
 export type BlockPreviewOptions = {
-    blockGrid: BlockTypeSettings;
+    blockGrid: BlockGridSettings;
     blockList: BlockTypeSettings;
     richText: BlockTypeSettings;
 };
@@ -83,7 +90,6 @@ export type BlockTypeSettings = {
     enabled: boolean;
     viewLocations?: Array<(string)> | null;
     contentTypes?: Array<(string)> | null;
-    stylesheet?: string | null;
 };
 
 export type CalculatedUserStartNodesResponseModel = {
@@ -2824,6 +2830,7 @@ export type PreviewGridBlockData = {
     contentUdi?: string;
     culture?: string;
     documentTypeUnique?: string;
+    nodeKey?: string;
     requestBody?: string;
     settingsUdi?: string;
 };
@@ -2834,6 +2841,8 @@ export type PreviewListBlockData = {
     blockEditorAlias?: string;
     contentElementAlias?: string;
     culture?: string;
+    documentTypeUnique?: string;
+    nodeKey?: string;
     requestBody?: string;
 };
 
@@ -2843,6 +2852,8 @@ export type PreviewRichTextMarkupData = {
     blockEditorAlias?: string;
     contentElementAlias?: string;
     culture?: string;
+    documentTypeUnique?: string;
+    nodeKey?: string;
     requestBody?: string;
 };
 

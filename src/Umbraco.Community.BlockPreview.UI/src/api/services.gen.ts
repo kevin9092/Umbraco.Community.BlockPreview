@@ -8,6 +8,7 @@ import type { PreviewGridBlockData, PreviewGridBlockResponse, PreviewListBlockDa
 export class BlockPreviewService {
     /**
      * @param data The data for the request.
+     * @param data.nodeKey
      * @param data.blockEditorAlias
      * @param data.contentElementAlias
      * @param data.culture
@@ -23,6 +24,7 @@ export class BlockPreviewService {
             method: 'POST',
             url: '/umbraco/management/api/v1/block-preview/preview/grid',
             query: {
+                nodeKey: data.nodeKey,
                 blockEditorAlias: data.blockEditorAlias,
                 contentElementAlias: data.contentElementAlias,
                 culture: data.culture,
@@ -41,9 +43,11 @@ export class BlockPreviewService {
     
     /**
      * @param data The data for the request.
+     * @param data.nodeKey
      * @param data.blockEditorAlias
      * @param data.contentElementAlias
      * @param data.culture
+     * @param data.documentTypeUnique
      * @param data.requestBody
      * @returns string OK
      * @throws ApiError
@@ -53,9 +57,11 @@ export class BlockPreviewService {
             method: 'POST',
             url: '/umbraco/management/api/v1/block-preview/preview/list',
             query: {
+                nodeKey: data.nodeKey,
                 blockEditorAlias: data.blockEditorAlias,
                 contentElementAlias: data.contentElementAlias,
-                culture: data.culture
+                culture: data.culture,
+                documentTypeUnique: data.documentTypeUnique
             },
             body: data.requestBody,
             mediaType: 'application/json',
@@ -68,9 +74,11 @@ export class BlockPreviewService {
     
     /**
      * @param data The data for the request.
+     * @param data.nodeKey
      * @param data.blockEditorAlias
      * @param data.contentElementAlias
      * @param data.culture
+     * @param data.documentTypeUnique
      * @param data.requestBody
      * @returns string OK
      * @throws ApiError
@@ -80,9 +88,11 @@ export class BlockPreviewService {
             method: 'POST',
             url: '/umbraco/management/api/v1/block-preview/preview/rte',
             query: {
+                nodeKey: data.nodeKey,
                 blockEditorAlias: data.blockEditorAlias,
                 contentElementAlias: data.contentElementAlias,
-                culture: data.culture
+                culture: data.culture,
+                documentTypeUnique: data.documentTypeUnique
             },
             body: data.requestBody,
             mediaType: 'application/json',

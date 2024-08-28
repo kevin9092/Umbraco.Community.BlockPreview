@@ -19,19 +19,11 @@ export class BlockListPreviewCustomView
     @state()
     htmlMarkup: string | undefined = "";
 
-    @state()
+    unique?: string = '';
     documentTypeUnique?: string = '';
-
-    @state()
     blockEditorAlias?: string = '';
-
-    @state()
     culture?: string = '';
-
-    @state()
     workspaceEditContentPath?: string;
-
-    @state()
     contentElementType: UmbContentTypeModel | undefined;
 
     @state()
@@ -69,10 +61,12 @@ export class BlockListPreviewCustomView
         });
 
         this.consumeContext(UMB_DOCUMENT_WORKSPACE_CONTEXT, (context) => {
-            this.observe(context.contentTypeUnique, async (unique) => {
-                this.documentTypeUnique = unique;
-                await this.#renderBlockPreview();
-            });
+            this.observe(
+                observeMultiple([context.unique, context.contentTypeUnique]),
+                async ([unique, documentTypeUnique]) => {
+                    this.unique = unique;
+                    this.documentTypeUnique = documentTypeUnique;
+                });
         });
 
         this.consumeContext(UMB_BLOCK_LIST_ENTRY_CONTEXT, (context) => {
@@ -95,7 +89,8 @@ export class BlockListPreviewCustomView
     }
 
     async #renderBlockPreview() {
-        if (!this.documentTypeUnique ||
+        if (!this.unique ||
+            !this.documentTypeUnique ||
             !this.blockEditorAlias ||
             !this.contentElementType || 
             !this.blockListValue.contentData ||
@@ -103,6 +98,7 @@ export class BlockListPreviewCustomView
 
         const previewData: PreviewListBlockData = {
             blockEditorAlias: this.blockEditorAlias,
+            nodeKey: this.unique,
             contentElementAlias: this.contentElementType.alias,
             culture: this.culture,
             requestBody: JSON.stringify(this.blockListValue)

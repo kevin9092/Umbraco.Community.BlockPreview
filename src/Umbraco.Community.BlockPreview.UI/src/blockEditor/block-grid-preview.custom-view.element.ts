@@ -22,18 +22,13 @@ export class BlockGridPreviewCustomView
     @state()
     htmlMarkup: string | undefined = '';
 
+    unique?: string = '';
     documentTypeUnique?: string = '';
-
     contentUdi: string | undefined = '';
-
     settingsUdi: string | undefined | null = null;
-
     blockEditorAlias?: string = '';
-
     culture?: string = '';
-
     workspaceEditContentPath?: string;
-
     contentElementType: UmbContentTypeModel | undefined;
 
     private _blockGridValue: UmbBlockGridValueModel = {
@@ -72,10 +67,13 @@ export class BlockGridPreviewCustomView
         });
 
         this.consumeContext(UMB_DOCUMENT_WORKSPACE_CONTEXT, (context) => {
-            this.observe(context.contentTypeUnique, async (unique) => {
-                this.documentTypeUnique = unique;
-                this.#observeBlockGridValue();
-            });
+            this.observe(
+                observeMultiple([context.unique, context.contentTypeUnique]),
+                async ([unique, documentTypeUnique]) => {
+                    this.unique = unique;
+                    this.documentTypeUnique = documentTypeUnique;
+                    this.#observeBlockGridValue();
+                });
         });
     }
 
@@ -114,7 +112,8 @@ export class BlockGridPreviewCustomView
     }
 
     async #renderBlockPreview() {
-        if (!this.documentTypeUnique ||
+        if (!this.unique ||
+            !this.documentTypeUnique ||
             !this.blockEditorAlias ||
             !this.contentUdi ||
             !this.contentElementType ||
@@ -125,6 +124,7 @@ export class BlockGridPreviewCustomView
 
         const previewData: PreviewGridBlockData = {
             blockEditorAlias: this.blockEditorAlias,
+            nodeKey: this.unique,
             contentElementAlias: this.contentElementType.alias,
             documentTypeUnique: this.documentTypeUnique,
             contentUdi: this.contentUdi,
