@@ -52,12 +52,13 @@ namespace Umbraco.Community.BlockPreview.Controllers
         /// Renders a preview for a grid block using the associated Razor view or ViewComponent.
         /// </summary>
         /// <param name="blockData">The JSON content data of the block.</param>
+        /// <param name="nodeKey">The <see cref="Guid"/> that represents the Umbraco node.</param>
         /// <param name="blockEditorAlias">The alias of the block editor</param>
         /// <param name="contentElementAlias">The alias of the content being rendered</param>
         /// <param name="culture">The current culture</param>
-        /// <param name="documentTypeUnique">The <see cref="Guid"/> that represents the Umbraco node</param>
+        /// <param name="documentTypeUnique">The <see cref="Guid"/> that represents the Umbraco node content type</param>
         /// <param name="contentUdi">The <see cref="Cms.Core.Udi"/> that represents the content element</param>
-        /// <param name="contentUdi">The <see cref="Cms.Core.Udi"/> that represents the settings element</param>
+        /// <param name="settingsUdi">The <see cref="Cms.Core.Udi"/> that represents the settings element</param>
         /// <returns>The markup to render in the preview.</returns>
         [HttpPost]
         [ProducesResponseType(typeof(string), 200)]
@@ -97,9 +98,11 @@ namespace Umbraco.Community.BlockPreview.Controllers
         /// Renders a preview for a list block using the associated Razor view or ViewComponent.
         /// </summary>
         /// <param name="blockData">The JSON content data of the block.</param>
+        /// <param name="nodeKey">The <see cref="Guid"/> that represents the Umbraco node.</param>
         /// <param name="blockEditorAlias">The alias of the block editor</param>
         /// <param name="contentElementAlias">The alias of the content being rendered</param>
         /// <param name="culture">The current culture</param>
+        /// <param name="documentTypeUnique">The <see cref="Guid"/> that represents the Umbraco node content type</param>
         /// <returns>The markup to render in the preview.</returns>
         [HttpPost]
         [ProducesResponseType(typeof(string), 200)]
@@ -139,9 +142,11 @@ namespace Umbraco.Community.BlockPreview.Controllers
         /// Renders a preview for a rich text block using the associated Razor view or ViewComponent.
         /// </summary>
         /// <param name="blockData">The JSON content data of the block.</param>
+        /// <param name="nodeKey">The <see cref="Guid"/> that represents the Umbraco node.</param>
         /// <param name="blockEditorAlias">The alias of the block editor</param>
         /// <param name="contentElementAlias">The alias of the content being rendered</param>
         /// <param name="culture">The current culture</param>
+        /// <param name="documentTypeUnique">The <see cref="Guid"/> that represents the Umbraco node content type</param>
         /// <returns>The markup to render in the preview.</returns>
         [HttpPost]
         [ProducesResponseType(typeof(string), 200)]
