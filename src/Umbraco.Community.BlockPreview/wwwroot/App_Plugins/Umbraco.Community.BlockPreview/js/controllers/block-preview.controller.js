@@ -65,6 +65,18 @@
                 parent = parent.$parent;
             }
 
+            parent = $scope.$parent;
+            while (parent.$parent) {
+                if (parent.vm) {
+                    if (parent.vm.constructor.name == 'ElementEditorContentComponentController') {
+                        $scope.documentTypeKey = parent.vm.model.contentTypeKey;
+                        break;
+                    }
+                }
+
+                parent = parent.$parent;
+            }
+
             function loadPreview() {
                 $scope.markup = $sce.trustAsHtml('<div class="preview-alert preview-alert-info">Loading preview</div>');
                 $scope.loading = true;
