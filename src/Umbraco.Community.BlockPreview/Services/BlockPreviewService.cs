@@ -151,18 +151,28 @@ namespace Umbraco.Community.BlockPreview.Services
 
         public async Task<string> RenderListBlock(
             BlockValue blockData,
-            ControllerContext controllerContext)
+            ControllerContext controllerContext,
+            string contentUdi = "",
+            string? settingsUdi = default)
         {
             if (blockData == null)
                 return string.Empty;
 
-            BlockItemData? contentData = blockData.ContentData.FirstOrDefault();
+            if (!UdiParser.TryParse(contentUdi, out Udi? contentUdiParsed))
+                return string.Empty;
+
+            UdiParser.TryParse(settingsUdi!, out Udi? settingsUdiParsed);
+
+            BlockItemData? contentData = blockData.ContentData.FirstOrDefault(x => x.Udi == contentUdiParsed);
             if (contentData == null)
                 return string.Empty;
 
             IPublishedElement? contentElement = ConvertToElement(contentData, true);
 
-            BlockItemData? settingsData = blockData.SettingsData.FirstOrDefault();
+            BlockItemData? settingsData = settingsUdiParsed != null
+                ? blockData.SettingsData.FirstOrDefault(x => x.Udi == settingsUdiParsed)
+                : null;
+
             IPublishedElement? settingsElement = settingsData != null ? ConvertToElement(settingsData, true) : default;
 
             Type? contentBlockType = FindBlockType(contentElement?.ContentType.Alias);

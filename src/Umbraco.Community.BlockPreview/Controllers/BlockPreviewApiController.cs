@@ -112,7 +112,9 @@ namespace Umbraco.Community.BlockPreview.Controllers
             [FromQuery] string blockEditorAlias = "",
             [FromQuery] string contentElementAlias = "",
             [FromQuery] string culture = "",
-            [FromQuery] Guid documentTypeKey = default)
+            [FromQuery] Guid documentTypeKey = default,
+            [FromQuery] string contentUdi = "",
+            [FromQuery] string? settingsUdi = default)
         {
             string markup;
             _ = culture;
@@ -125,7 +127,7 @@ namespace Umbraco.Community.BlockPreview.Controllers
 
                 await SetupPublishedRequest(currentCulture, content);
 
-                markup = await _blockPreviewService.RenderListBlock(blockData, ControllerContext);
+                markup = await _blockPreviewService.RenderListBlock(blockData, ControllerContext, contentUdi, settingsUdi);
             }
             catch (Exception ex)
             {

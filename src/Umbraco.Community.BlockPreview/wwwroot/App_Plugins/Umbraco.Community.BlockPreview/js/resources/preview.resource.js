@@ -39,12 +39,14 @@
             blockEditorAlias,
             contentElementAlias,
             culture,
-            documentTypeKey)
+            documentTypeKey,
+            contentUdi,
+            settingsUdi)
         {
             culture = culture || '';
 
             return umbRequestHelper.resourcePromise(
-                $http.post(`${apiListUrl}?nodeKey=${nodeKey}&blockEditorAlias=${blockEditorAlias}&contentElementAlias=${contentElementAlias}&culture=${culture}&documentTypeKey=${documentTypeKey}`, blockData),
+                $http.post(`${apiListUrl}?nodeKey=${nodeKey}&blockEditorAlias=${blockEditorAlias}&contentElementAlias=${contentElementAlias}&culture=${culture}&documentTypeKey=${documentTypeKey}&contentUdi=${contentUdi}&settingsUdi=${settingsUdi}`, blockData),
                 'Failed getting block preview markup'
             );
         };

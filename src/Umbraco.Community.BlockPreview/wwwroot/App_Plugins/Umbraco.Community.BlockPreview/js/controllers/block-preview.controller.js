@@ -104,7 +104,9 @@
                         $scope.blockEditorAlias,
                         $scope.contentElementAlias,
                         $scope.language,
-                        $scope.documentTypeKey)
+                        $scope.documentTypeKey,
+                        $scope.contentUdi,
+                        $scope.settingsUdi)
                         .then(function (data) {
                             $scope.markup = $sce.trustAsHtml(data);
                             $scope.loading = false;
