@@ -108,11 +108,13 @@ namespace Umbraco.Community.BlockPreview.Services
             List<string>? layoutItems = blockData?.Layout?.FirstOrDefault().Value.Select(layout => layout.ToString()).ToList();
             BlockGridLayoutItem? layoutItem = null;
 
-            foreach (var layoutItemJson in layoutItems)
+            if (layoutItems != null)
             {
-                layoutItem = JsonConvert.DeserializeObject<BlockGridLayoutItem>(layoutItemJson);
-                if (layoutItem != null)
+                foreach (var layoutItemJson in layoutItems)
                 {
+                    layoutItem = JsonConvert.DeserializeObject<BlockGridLayoutItem>(layoutItemJson);
+                    if (layoutItem == null) continue;
+                    
                     if (layoutItem.ContentUdi == blockInstance.ContentUdi)
                     {
                         blockInstance.RowSpan = layoutItem.RowSpan!.Value;
@@ -127,6 +129,7 @@ namespace Umbraco.Community.BlockPreview.Services
                                 if (item.ContentUdi != blockInstance.ContentUdi) continue;
                                 blockInstance.RowSpan = item.RowSpan!.Value;
                                 blockInstance.ColumnSpan = item.ColumnSpan!.Value;
+                                break;
                             }
                         }
                     }
