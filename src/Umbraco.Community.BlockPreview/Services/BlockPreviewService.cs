@@ -105,16 +105,34 @@ namespace Umbraco.Community.BlockPreview.Services
             if (blockInstance == null)
                 return string.Empty;
 
-            string? layoutItemJson = blockData?.Layout?.FirstOrDefault().Value.FirstOrDefault()!.ToString();
+            List<string>? layoutItems = blockData?.Layout?.FirstOrDefault().Value.Select(layout => layout.ToString()).ToList();
             BlockGridLayoutItem? layoutItem = null;
 
-            if (!string.IsNullOrEmpty(layoutItemJson))
+            if (layoutItems != null)
             {
-                layoutItem = JsonConvert.DeserializeObject<BlockGridLayoutItem>(layoutItemJson);
-                if (layoutItem != null)
+                foreach (var layoutItemJson in layoutItems)
                 {
-                    blockInstance.RowSpan = layoutItem.RowSpan!.Value;
-                    blockInstance.ColumnSpan = layoutItem.ColumnSpan!.Value;
+                    layoutItem = JsonConvert.DeserializeObject<BlockGridLayoutItem>(layoutItemJson);
+                    if (layoutItem == null) continue;
+                    
+                    if (layoutItem.ContentUdi == blockInstance.ContentUdi)
+                    {
+                        blockInstance.RowSpan = layoutItem.RowSpan!.Value;
+                        blockInstance.ColumnSpan = layoutItem.ColumnSpan!.Value;
+                    }
+                    else
+                    {
+                        foreach (var area in layoutItem.Areas)
+                        {
+                            foreach (var item in area.Items)
+                            {
+                                if (item.ContentUdi != blockInstance.ContentUdi) continue;
+                                blockInstance.RowSpan = item.RowSpan!.Value;
+                                blockInstance.ColumnSpan = item.ColumnSpan!.Value;
+                                break;
+                            }
+                        }
+                    }
                 }
             }
 

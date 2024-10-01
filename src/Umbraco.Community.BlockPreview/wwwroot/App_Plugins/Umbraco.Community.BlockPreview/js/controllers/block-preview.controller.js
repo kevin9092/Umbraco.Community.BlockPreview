@@ -132,6 +132,26 @@
 
             var timeoutPromise;
 
+            $scope.$watch('block.layout.columnSpan', function (newValue, oldValue) {
+                if (newValue !== oldValue) {
+                    $timeout.cancel(timeoutPromise);
+
+                    timeoutPromise = $timeout(function () {   //Set timeout
+                        loadPreview(newValue, null);
+                    }, 500);
+                }
+            }, true);
+
+            $scope.$watch('block.layout.rowSpan', function (newValue, oldValue) {
+                if (newValue !== oldValue) {
+                    $timeout.cancel(timeoutPromise);
+
+                    timeoutPromise = $timeout(function () {   //Set timeout
+                        loadPreview(newValue, null);
+                    }, 500);
+                }
+            }, true);
+
             $scope.$watch('block.data', function (newValue, oldValue) {
                 if (newValue !== oldValue) {
                     $timeout.cancel(timeoutPromise);
