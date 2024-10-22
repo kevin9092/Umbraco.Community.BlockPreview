@@ -248,6 +248,24 @@ namespace Umbraco.Community.BlockPreview.Services
 
         private IPublishedElement? ConvertToElement(BlockItemData data, bool throwOnError)
         {
+            var properties = data.RawPropertyValues;
+            
+            // Check each property, if a property is just a guid, convert to UDI
+            for (var i = 0; i < properties.Count; i++)
+            {
+                var key = properties.Keys.ElementAt(i);
+                var value = properties[key];
+                var propertyAsString = value?.ToString();
+            
+                // Continue if empty, contains UDI or if it's not a guid.
+                if (propertyAsString == null) continue;
+                if (propertyAsString.Contains("umb://")) continue;
+                if (!Guid.TryParse(propertyAsString, out var guid)) continue;
+            
+                // Convert guid to UDI and set property value
+                properties[key] = "umb://element/" + guid;
+            }
+            
             var element = _blockEditorConverter.ConvertToElement(data, PropertyCacheLevel.None, throwOnError);
             if (element == null && throwOnError)
                 throw new InvalidOperationException($"Unable to find Element {data?.ContentTypeAlias}");
